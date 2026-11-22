@@ -23,6 +23,7 @@ simrs/
 ├── frontend/                 aplikasi petugas (React) + skrip uji end-to-end
 ├── database/                 001_schema.sql (skema + seed role), 002 bukti constraint, 003 user read-only
 ├── docs/                     arsitektur, ERD, screenshot
+├── postman/                  collection, environment, laporan pengujian Newman
 ├── docker-compose.yml        PostgreSQL siap pakai (opsional)
 ├── setup-windows.bat         setup sekali jalan di Windows
 ├── start-dev.bat             menyalakan semua service di Windows
@@ -83,6 +84,7 @@ Urutan demo: daftar pasien (pendaftaran) → periksa & resep & lab (dokter) → 
 | Constraint database | `psql -d simrs -f database/002_constraint_tests.sql` | semua pelanggaran ditolak |
 | Analisis statis Yii | `cd backend-yii && vendor/bin/phpstan analyse` | level 5, 0 error |
 | End-to-end browser (semua role) + screenshot | `cd frontend && npm run e2e` | alur lengkap tanpa error console/HTTP 5xx |
+| Postman collection (Yii + Node, 11 folder) | `npx newman run postman/SIMRS.postman_collection.json -e postman/SIMRS-lokal.postman_environment.json` | 102 request, 286/286 assertion lolos ([laporan](postman/reports/ringkasan-pengujian.html)) |
 
 ## Tampilan
 
@@ -91,4 +93,4 @@ Urutan demo: daftar pasien (pendaftaran) → periksa & resep & lab (dokter) → 
 | ![Antrean pendaftaran](docs/screenshots/04-pendaftaran-antrean.png) | ![Pemeriksaan dokter](docs/screenshots/06-dokter-pemeriksaan.png) |
 | ![Tagihan lunas](docs/screenshots/13-kasir-lunas.png) | ![Dashboard](docs/screenshots/16-dashboard.png) |
 
-Semua screenshot (18 langkah alur pelayanan, termasuk invoice & bukti pembayaran cetak): [`docs/screenshots/`](docs/screenshots/).
+Semua screenshot (18 langkah alur pelayanan termasuk invoice & bukti pembayaran cetak, plus hasil Postman/Newman): [`docs/screenshots/`](docs/screenshots/).

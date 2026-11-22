@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="SIMRS Rawat Jalan API" tests="102" time="8.044">
+  <testsuite name="00 Kesehatan service / Yii health" id="42edf915-3d33-42cf-bd50-08bd1aff8f34" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.037">
+    <testcase name="HTTP 200" time="0.037" classname="00KesehatanServiceYiiHealth"/>
+    <testcase name="format sukses konsisten" time="0.037" classname="00KesehatanServiceYiiHealth"/>
+    <testcase name="database up" time="0.037" classname="00KesehatanServiceYiiHealth"/>
+  </testsuite>
+  <testsuite name="00 Kesehatan service / Node health" id="07a40a5e-115f-40c8-ba20-9602a3f59af8" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.005">
+    <testcase name="HTTP 200" time="0.005" classname="00KesehatanServiceNodeHealth"/>
+    <testcase name="format sukses konsisten" time="0.005" classname="00KesehatanServiceNodeHealth"/>
+    <testcase name="database up" time="0.005" classname="00KesehatanServiceNodeHealth"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login gagal (password salah)" id="4e2a6bce-026b-4075-b317-c1cfc15c659e" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.587">
+    <testcase name="HTTP 401" time="0.587" classname="01AutentikasiLoginGagalPasswordSalah"/>
+    <testcase name="error.code = INVALID_CREDENTIALS" time="0.587" classname="01AutentikasiLoginGagalPasswordSalah"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login validasi (kosong)" id="d1c6eff4-e3e3-4391-9e99-f3ba784f7fc9" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.007">
+    <testcase name="HTTP 422" time="0.007" classname="01AutentikasiLoginValidasiKosong"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.007" classname="01AutentikasiLoginValidasiKosong"/>
+    <testcase name="detail per field" time="0.007" classname="01AutentikasiLoginValidasiKosong"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login admin" id="a3639ca5-1753-41b9-90dc-aa35e1c4df5a" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.562">
+    <testcase name="HTTP 200" time="0.562" classname="01AutentikasiLoginAdmin"/>
+    <testcase name="format sukses konsisten" time="0.562" classname="01AutentikasiLoginAdmin"/>
+    <testcase name="role admin" time="0.562" classname="01AutentikasiLoginAdmin"/>
+    <testcase name="token JWT" time="0.562" classname="01AutentikasiLoginAdmin"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login pendaftaran" id="219b2209-7132-405b-91d5-e27c97dea2a3" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.559">
+    <testcase name="HTTP 200" time="0.559" classname="01AutentikasiLoginPendaftaran"/>
+    <testcase name="format sukses konsisten" time="0.559" classname="01AutentikasiLoginPendaftaran"/>
+    <testcase name="role registration" time="0.559" classname="01AutentikasiLoginPendaftaran"/>
+    <testcase name="token JWT" time="0.559" classname="01AutentikasiLoginPendaftaran"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login dokter.umum" id="035402ec-6d30-4193-a7f4-1264056b29a7" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.558">
+    <testcase name="HTTP 200" time="0.558" classname="01AutentikasiLoginDokterUmum"/>
+    <testcase name="format sukses konsisten" time="0.558" classname="01AutentikasiLoginDokterUmum"/>
+    <testcase name="role doctor" time="0.558" classname="01AutentikasiLoginDokterUmum"/>
+    <testcase name="token JWT" time="0.558" classname="01AutentikasiLoginDokterUmum"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login dokter.gigi" id="29075410-7d90-461d-8da3-96805567955d" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.574">
+    <testcase name="HTTP 200" time="0.574" classname="01AutentikasiLoginDokterGigi"/>
+    <testcase name="format sukses konsisten" time="0.574" classname="01AutentikasiLoginDokterGigi"/>
+    <testcase name="role doctor" time="0.574" classname="01AutentikasiLoginDokterGigi"/>
+    <testcase name="token JWT" time="0.574" classname="01AutentikasiLoginDokterGigi"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login farmasi" id="e35def65-b7a1-4c96-bf31-369dc567382c" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.559">
+    <testcase name="HTTP 200" time="0.559" classname="01AutentikasiLoginFarmasi"/>
+    <testcase name="format sukses konsisten" time="0.559" classname="01AutentikasiLoginFarmasi"/>
+    <testcase name="role pharmacy" time="0.559" classname="01AutentikasiLoginFarmasi"/>
+    <testcase name="token JWT" time="0.559" classname="01AutentikasiLoginFarmasi"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login lab" id="be9701aa-134c-4805-b00a-2f8a7cd71363" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.566">
+    <testcase name="HTTP 200" time="0.566" classname="01AutentikasiLoginLab"/>
+    <testcase name="format sukses konsisten" time="0.566" classname="01AutentikasiLoginLab"/>
+    <testcase name="role lab" time="0.566" classname="01AutentikasiLoginLab"/>
+    <testcase name="token JWT" time="0.566" classname="01AutentikasiLoginLab"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Login kasir" id="8d7d4802-d3c9-4b86-a2dc-5bef4ec2ce84" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.568">
+    <testcase name="HTTP 200" time="0.568" classname="01AutentikasiLoginKasir"/>
+    <testcase name="format sukses konsisten" time="0.568" classname="01AutentikasiLoginKasir"/>
+    <testcase name="role cashier" time="0.568" classname="01AutentikasiLoginKasir"/>
+    <testcase name="token JWT" time="0.568" classname="01AutentikasiLoginKasir"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Profil (me)" id="250635f5-8267-4d4c-8774-4a77aea8cf46" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.033">
+    <testcase name="HTTP 200" time="0.033" classname="01AutentikasiProfilMe"/>
+    <testcase name="format sukses konsisten" time="0.033" classname="01AutentikasiProfilMe"/>
+    <testcase name="permission kasir" time="0.033" classname="01AutentikasiProfilMe"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Tanpa token -> 401" id="3072a2b8-1a79-4d12-9770-e39636d359b5" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.006">
+    <testcase name="HTTP 401" time="0.006" classname="01AutentikasiTanpaToken401"/>
+    <testcase name="error.code = UNAUTHORIZED" time="0.006" classname="01AutentikasiTanpaToken401"/>
+  </testsuite>
+  <testsuite name="01 Autentikasi / Token rusak -> 401" id="32aff329-4113-442b-847f-5baa9854beeb" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.006">
+    <testcase name="HTTP 401" time="0.006" classname="01AutentikasiTokenRusak401"/>
+    <testcase name="error.code = UNAUTHORIZED" time="0.006" classname="01AutentikasiTokenRusak401"/>
+  </testsuite>
+  <testsuite name="02 Master data / Daftar poli aktif" id="508e3186-77d9-4831-965d-a6893233b44e" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.036">
+    <testcase name="HTTP 200" time="0.036" classname="02MasterDataDaftarPoliAktif"/>
+    <testcase name="format sukses konsisten" time="0.036" classname="02MasterDataDaftarPoliAktif"/>
+    <testcase name="meta paginasi" time="0.036" classname="02MasterDataDaftarPoliAktif"/>
+  </testsuite>
+  <testsuite name="02 Master data / Tambah poli" id="f72a22a7-d7b0-489c-91f8-13b80b26675a" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.045">
+    <testcase name="HTTP 201" time="0.045" classname="02MasterDataTambahPoli"/>
+    <testcase name="format sukses konsisten" time="0.045" classname="02MasterDataTambahPoli"/>
+    <testcase name="kode dinormalisasi huruf besar" time="0.045" classname="02MasterDataTambahPoli"/>
+  </testsuite>
+  <testsuite name="02 Master data / Tambah poli kode sama -> 422" id="b754fa8f-802e-48c5-8bcc-d2ecfab45c6b" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.035">
+    <testcase name="HTTP 422" time="0.035" classname="02MasterDataTambahPoliKodeSama422"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.035" classname="02MasterDataTambahPoliKodeSama422"/>
+    <testcase name="field code" time="0.035" classname="02MasterDataTambahPoliKodeSama422"/>
+  </testsuite>
+  <testsuite name="02 Master data / Ubah tarif poli" id="675f6237-9d5c-4c25-873e-ce5852c48f07" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.036">
+    <testcase name="HTTP 200" time="0.036" classname="02MasterDataUbahTarifPoli"/>
+    <testcase name="format sukses konsisten" time="0.036" classname="02MasterDataUbahTarifPoli"/>
+    <testcase name="tarif berubah" time="0.036" classname="02MasterDataUbahTarifPoli"/>
+  </testsuite>
+  <testsuite name="02 Master data / Nonaktifkan poli (soft delete)" id="0a73c670-2ca0-4691-916f-cef1101575dd" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.033">
+    <testcase name="HTTP 200" time="0.033" classname="02MasterDataNonaktifkanPoliSoftDelete"/>
+    <testcase name="format sukses konsisten" time="0.033" classname="02MasterDataNonaktifkanPoliSoftDelete"/>
+    <testcase name="is_active false" time="0.033" classname="02MasterDataNonaktifkanPoliSoftDelete"/>
+  </testsuite>
+  <testsuite name="02 Master data / Cari tindakan konsultasi" id="9e534ccf-cccb-4f66-a924-381811968bc5" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.035">
+    <testcase name="HTTP 200" time="0.035" classname="02MasterDataCariTindakanKonsultasi"/>
+    <testcase name="format sukses konsisten" time="0.035" classname="02MasterDataCariTindakanKonsultasi"/>
+  </testsuite>
+  <testsuite name="02 Master data / Cari tindakan nebulizer" id="fddfb5bf-82d0-4609-b6cf-61f6119b7365" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.031">
+    <testcase name="HTTP 200" time="0.031" classname="02MasterDataCariTindakanNebulizer"/>
+    <testcase name="format sukses konsisten" time="0.031" classname="02MasterDataCariTindakanNebulizer"/>
+  </testsuite>
+  <testsuite name="02 Master data / Cari obat paracetamol" id="4e19681d-70b4-43d3-b321-849d2e564457" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.033">
+    <testcase name="HTTP 200" time="0.033" classname="02MasterDataCariObatParacetamol"/>
+    <testcase name="format sukses konsisten" time="0.033" classname="02MasterDataCariObatParacetamol"/>
+  </testsuite>
+  <testsuite name="02 Master data / Cari obat vitamin C" id="272804f3-2e2c-47eb-a767-7a6a2b662acb" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.033">
+    <testcase name="HTTP 200" time="0.033" classname="02MasterDataCariObatVitaminC"/>
+    <testcase name="format sukses konsisten" time="0.033" classname="02MasterDataCariObatVitaminC"/>
+  </testsuite>
+  <testsuite name="02 Master data / Cari tes lab hemoglobin" id="0408cc64-c4f9-40a7-a71c-b8f616229d1a" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.046">
+    <testcase name="HTTP 200" time="0.046" classname="02MasterDataCariTesLabHemoglobin"/>
+    <testcase name="format sukses konsisten" time="0.046" classname="02MasterDataCariTesLabHemoglobin"/>
+  </testsuite>
+  <testsuite name="02 Master data / Cari tes lab gula darah" id="a603f173-5a25-4521-8df0-a43b87b6589c" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.027">
+    <testcase name="HTTP 200" time="0.027" classname="02MasterDataCariTesLabGulaDarah"/>
+    <testcase name="format sukses konsisten" time="0.027" classname="02MasterDataCariTesLabGulaDarah"/>
+  </testsuite>
+  <testsuite name="02 Master data / Stok masuk (farmasi)" id="adf8940a-1b53-4cff-a832-48a3a6d87602" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.035">
+    <testcase name="HTTP 200" time="0.035" classname="02MasterDataStokMasukFarmasi"/>
+    <testcase name="format sukses konsisten" time="0.035" classname="02MasterDataStokMasukFarmasi"/>
+    <testcase name="stok bertambah" time="0.035" classname="02MasterDataStokMasukFarmasi"/>
+  </testsuite>
+  <testsuite name="02 Master data / Penyesuaian stok tanpa alasan -> 422" id="4e5c4b8d-4bde-4e5c-babe-2302032fd7ff" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.025">
+    <testcase name="HTTP 422" time="0.025" classname="02MasterDataPenyesuaianStokTanpaAlasan422"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.025" classname="02MasterDataPenyesuaianStokTanpaAlasan422"/>
+  </testsuite>
+  <testsuite name="02 Master data / Kartu stok" id="7076f83d-2710-4951-8a4c-b30eda218cf8" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.031">
+    <testcase name="HTTP 200" time="0.031" classname="02MasterDataKartuStok"/>
+    <testcase name="format sukses konsisten" time="0.031" classname="02MasterDataKartuStok"/>
+    <testcase name="mutasi terbaru = in 50" time="0.031" classname="02MasterDataKartuStok"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Tambah pasien baru" id="9c94d68e-64af-4311-96e9-7ce57fad61b7" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.033">
+    <testcase name="HTTP 201" time="0.033" classname="03PasienAmpPendaftaranTambahPasienBaru"/>
+    <testcase name="format sukses konsisten" time="0.033" classname="03PasienAmpPendaftaranTambahPasienBaru"/>
+    <testcase name="nomor RM otomatis" time="0.033" classname="03PasienAmpPendaftaranTambahPasienBaru"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Validasi pasien -> 422" id="b626ace6-b0fa-46a5-9f7b-5827a69f47c4" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.034">
+    <testcase name="HTTP 422" time="0.034" classname="03PasienAmpPendaftaranValidasiPasien422"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.034" classname="03PasienAmpPendaftaranValidasiPasien422"/>
+    <testcase name="semua field salah dilaporkan" time="0.034" classname="03PasienAmpPendaftaranValidasiPasien422"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Pasien kembar (nama + tgl lahir) -> 409" id="fe96b941-f1c3-4bd8-8553-0d1dc7fad968" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.037">
+    <testcase name="HTTP 409" time="0.037" classname="03PasienAmpPendaftaranPasienKembarNamaTglLahir409"/>
+    <testcase name="error.code = POSSIBLE_DUPLICATE" time="0.037" classname="03PasienAmpPendaftaranPasienKembarNamaTglLahir409"/>
+    <testcase name="kandidat ditampilkan" time="0.037" classname="03PasienAmpPendaftaranPasienKembarNamaTglLahir409"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Cari pasien (NIK)" id="22d3b6d4-424d-4bc4-b4ee-a076251f1782" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.036">
+    <testcase name="HTTP 200" time="0.036" classname="03PasienAmpPendaftaranCariPasienNik"/>
+    <testcase name="format sukses konsisten" time="0.036" classname="03PasienAmpPendaftaranCariPasienNik"/>
+    <testcase name="ketemu 1" time="0.036" classname="03PasienAmpPendaftaranCariPasienNik"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Jadwal dokter hari ini" id="a16f3e08-ff42-4203-b273-8579c41070ae" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.027">
+    <testcase name="HTTP 200" time="0.027" classname="03PasienAmpPendaftaranJadwalDokterHariIni"/>
+    <testcase name="format sukses konsisten" time="0.027" classname="03PasienAmpPendaftaranJadwalDokterHariIni"/>
+    <testcase name="ada jadwal Poli Umum &amp; Gigi" time="0.027" classname="03PasienAmpPendaftaranJadwalDokterHariIni"/>
+    <testcase name="sisa kuota dihitung" time="0.027" classname="03PasienAmpPendaftaranJadwalDokterHariIni"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Daftarkan kunjungan (Poli Umum)" id="ced093d6-5a3c-4009-877a-72576bd29b75" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.088">
+    <testcase name="HTTP 201" time="0.088" classname="03PasienAmpPendaftaranDaftarkanKunjunganPoliUmum"/>
+    <testcase name="format sukses konsisten" time="0.088" classname="03PasienAmpPendaftaranDaftarkanKunjunganPoliUmum"/>
+    <testcase name="status menunggu + nomor antrean" time="0.088" classname="03PasienAmpPendaftaranDaftarkanKunjunganPoliUmum"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Daftar ulang pasien sama -> 409 (D1)" id="df73b835-5ff0-4f93-bc51-01e4b6fb7b91" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.062">
+    <testcase name="HTTP 409" time="0.062" classname="03PasienAmpPendaftaranDaftarUlangPasienSama409D1"/>
+    <testcase name="error.code = DUPLICATE_VISIT" time="0.062" classname="03PasienAmpPendaftaranDaftarUlangPasienSama409D1"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Antrean hari ini" id="e48f734a-17af-4ce5-93d6-393a8eddb11e" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.051">
+    <testcase name="HTTP 200" time="0.051" classname="03PasienAmpPendaftaranAntreanHariIni"/>
+    <testcase name="format sukses konsisten" time="0.051" classname="03PasienAmpPendaftaranAntreanHariIni"/>
+    <testcase name="kunjungan baru ada di antrean" time="0.051" classname="03PasienAmpPendaftaranAntreanHariIni"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Tagihan otomatis dibuat (kasir)" id="d2396bb2-ecdb-4004-a002-22a44ba4638b" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.058">
+    <testcase name="HTTP 200" time="0.058" classname="03PasienAmpPendaftaranTagihanOtomatisDibuatKasir"/>
+    <testcase name="format sukses konsisten" time="0.058" classname="03PasienAmpPendaftaranTagihanOtomatisDibuatKasir"/>
+    <testcase name="biaya pendaftaran masuk, belum dibayar" time="0.058" classname="03PasienAmpPendaftaranTagihanOtomatisDibuatKasir"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Pasien kedua (untuk uji batal)" id="0bf5bc5b-ccf5-4b70-8b3f-504bb75ec408" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.030">
+    <testcase name="HTTP 201" time="0.030" classname="03PasienAmpPendaftaranPasienKeduaUntukUjiBatal"/>
+    <testcase name="format sukses konsisten" time="0.030" classname="03PasienAmpPendaftaranPasienKeduaUntukUjiBatal"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Daftarkan pasien kedua (Poli Gigi)" id="66e40d1e-78b3-4749-91d1-8a1895d2bd79" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.071">
+    <testcase name="HTTP 201" time="0.071" classname="03PasienAmpPendaftaranDaftarkanPasienKeduaPoliGigi"/>
+    <testcase name="format sukses konsisten" time="0.071" classname="03PasienAmpPendaftaranDaftarkanPasienKeduaPoliGigi"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Batalkan tanpa alasan -> 422" id="69e60403-ffed-4538-a482-41aaaf6ea634" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.019">
+    <testcase name="HTTP 422" time="0.019" classname="03PasienAmpPendaftaranBatalkanTanpaAlasan422"/>
+    <testcase name="error.code = REASON_REQUIRED" time="0.019" classname="03PasienAmpPendaftaranBatalkanTanpaAlasan422"/>
+  </testsuite>
+  <testsuite name="03 Pasien &amp; pendaftaran / Batalkan kunjungan" id="54fe8b91-0693-42da-9e3c-71dd62f7ae38" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.065">
+    <testcase name="HTTP 200" time="0.065" classname="03PasienAmpPendaftaranBatalkanKunjungan"/>
+    <testcase name="format sukses konsisten" time="0.065" classname="03PasienAmpPendaftaranBatalkanKunjungan"/>
+    <testcase name="status batal" time="0.065" classname="03PasienAmpPendaftaranBatalkanKunjungan"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Kasir buat resep -> 403 (RBAC)" id="b0b03c0e-29d7-4142-a6de-d7aefe80c523" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.022">
+    <testcase name="HTTP 403" time="0.022" classname="04PemeriksaanDokterKasirBuatResep403Rbac"/>
+    <testcase name="error.code = FORBIDDEN" time="0.022" classname="04PemeriksaanDokterKasirBuatResep403Rbac"/>
+    <testcase name="menyebut permission" time="0.022" classname="04PemeriksaanDokterKasirBuatResep403Rbac"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Dokter lain periksa pasien ini -> 403" id="f7130b7d-11f3-466d-b549-0a9f23c1a74c" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.050">
+    <testcase name="HTTP 403" time="0.050" classname="04PemeriksaanDokterDokterLainPeriksaPasienIni403"/>
+    <testcase name="error.code = FORBIDDEN" time="0.050" classname="04PemeriksaanDokterDokterLainPeriksaPasienIni403"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Antrean dokter" id="87bf8ad0-8340-466e-a14a-dedc3c6a1d7f" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.062">
+    <testcase name="HTTP 200" time="0.062" classname="04PemeriksaanDokterAntreanDokter"/>
+    <testcase name="format sukses konsisten" time="0.062" classname="04PemeriksaanDokterAntreanDokter"/>
+    <testcase name="pasien ada di antrean dokter" time="0.062" classname="04PemeriksaanDokterAntreanDokter"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Panggil pasien" id="bac64f8b-9c4e-43d1-bec4-c253cce3af64" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.055">
+    <testcase name="HTTP 200" time="0.055" classname="04PemeriksaanDokterPanggilPasien"/>
+    <testcase name="format sukses konsisten" time="0.055" classname="04PemeriksaanDokterPanggilPasien"/>
+    <testcase name="status diperiksa" time="0.055" classname="04PemeriksaanDokterPanggilPasien"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Vital sign tidak wajar -> 422" id="7c48bc9a-a38a-4b75-9392-1e397699cc1d" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.058">
+    <testcase name="HTTP 422" time="0.058" classname="04PemeriksaanDokterVitalSignTidakWajar422"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.058" classname="04PemeriksaanDokterVitalSignTidakWajar422"/>
+    <testcase name="field temperature &amp; bp_diastolic" time="0.058" classname="04PemeriksaanDokterVitalSignTidakWajar422"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Simpan anamnesis, vital sign, diagnosis" id="eb90f98f-e261-4959-839f-06aab0301058" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.075">
+    <testcase name="HTTP 200" time="0.075" classname="04PemeriksaanDokterSimpanAnamnesisVitalSignDiagnosis"/>
+    <testcase name="format sukses konsisten" time="0.075" classname="04PemeriksaanDokterSimpanAnamnesisVitalSignDiagnosis"/>
+    <testcase name="diagnosis utama &amp; sekunder" time="0.075" classname="04PemeriksaanDokterSimpanAnamnesisVitalSignDiagnosis"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Tambah tindakan konsultasi" id="ffa03053-401b-4423-95a8-6cb77e65ceb0" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.085">
+    <testcase name="HTTP 201" time="0.085" classname="04PemeriksaanDokterTambahTindakanKonsultasi"/>
+    <testcase name="format sukses konsisten" time="0.085" classname="04PemeriksaanDokterTambahTindakanKonsultasi"/>
+    <testcase name="tarif tersalin" time="0.085" classname="04PemeriksaanDokterTambahTindakanKonsultasi"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Tambah tindakan nebulizer" id="56ecbf36-215e-48e2-9f8d-81f1f3f2fcb5" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.083">
+    <testcase name="HTTP 201" time="0.083" classname="04PemeriksaanDokterTambahTindakanNebulizer"/>
+    <testcase name="format sukses konsisten" time="0.083" classname="04PemeriksaanDokterTambahTindakanNebulizer"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Resep melebihi stok -> 422" id="a66c82ba-d002-48f3-ba9f-0db87343e161" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.055">
+    <testcase name="HTTP 422" time="0.055" classname="04PemeriksaanDokterResepMelebihiStok422"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.055" classname="04PemeriksaanDokterResepMelebihiStok422"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Buat resep" id="b7af6468-3bda-4bc6-a1a5-24cd8543cefb" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.065">
+    <testcase name="HTTP 201" time="0.065" classname="04PemeriksaanDokterBuatResep"/>
+    <testcase name="format sukses konsisten" time="0.065" classname="04PemeriksaanDokterBuatResep"/>
+    <testcase name="status menunggu farmasi" time="0.065" classname="04PemeriksaanDokterBuatResep"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Permintaan laboratorium" id="aeac77a2-91e9-417b-95c7-5251aeb40a48" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.085">
+    <testcase name="HTTP 201" time="0.085" classname="04PemeriksaanDokterPermintaanLaboratorium"/>
+    <testcase name="format sukses konsisten" time="0.085" classname="04PemeriksaanDokterPermintaanLaboratorium"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Selesaikan pemeriksaan" id="88698eb3-a103-4e5a-b109-a45a5306e2db" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.055">
+    <testcase name="HTTP 200" time="0.055" classname="04PemeriksaanDokterSelesaikanPemeriksaan"/>
+    <testcase name="format sukses konsisten" time="0.055" classname="04PemeriksaanDokterSelesaikanPemeriksaan"/>
+    <testcase name="final" time="0.055" classname="04PemeriksaanDokterSelesaikanPemeriksaan"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Ubah diagnosis setelah final tanpa alasan -> 422 (D4)" id="83bb0a09-a82e-4834-ae5d-fec38e1eb023" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.041">
+    <testcase name="HTTP 422" time="0.041" classname="04PemeriksaanDokterUbahDiagnosisSetelahFinalTanpaAlasan422D4"/>
+    <testcase name="error.code = REASON_REQUIRED" time="0.041" classname="04PemeriksaanDokterUbahDiagnosisSetelahFinalTanpaAlasan422D4"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Ubah diagnosis dengan alasan (D4)" id="e31e9350-83a0-4b1c-ab3f-c631d2d16546" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.058">
+    <testcase name="HTTP 200" time="0.058" classname="04PemeriksaanDokterUbahDiagnosisDenganAlasanD4"/>
+    <testcase name="format sukses konsisten" time="0.058" classname="04PemeriksaanDokterUbahDiagnosisDenganAlasanD4"/>
+    <testcase name="versi naik" time="0.058" classname="04PemeriksaanDokterUbahDiagnosisDenganAlasanD4"/>
+    <testcase name="tinggal 1 diagnosis aktif" time="0.058" classname="04PemeriksaanDokterUbahDiagnosisDenganAlasanD4"/>
+  </testsuite>
+  <testsuite name="04 Pemeriksaan dokter / Jejak perubahan (audit)" id="7f8f8d1d-4a1c-4cc0-b7fa-e3d8b84c86ca" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.036">
+    <testcase name="HTTP 200" time="0.036" classname="04PemeriksaanDokterJejakPerubahanAudit"/>
+    <testcase name="format sukses konsisten" time="0.036" classname="04PemeriksaanDokterJejakPerubahanAudit"/>
+    <testcase name="alasan tercatat" time="0.036" classname="04PemeriksaanDokterJejakPerubahanAudit"/>
+    <testcase name="pelaku tercatat" time="0.036" classname="04PemeriksaanDokterJejakPerubahanAudit"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Worklist permintaan baru" id="f0daccb2-31b6-4494-99ab-a79a0dd7729d" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.014">
+    <testcase name="HTTP 200" time="0.014" classname="05LaboratoriumServicesNodeWorklistPermintaanBaru"/>
+    <testcase name="format sukses konsisten" time="0.014" classname="05LaboratoriumServicesNodeWorklistPermintaanBaru"/>
+    <testcase name="permintaan ada" time="0.014" classname="05LaboratoriumServicesNodeWorklistPermintaanBaru"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Detail permintaan" id="5446e14f-3557-4c9d-b5d3-8544230d8b0a" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.006">
+    <testcase name="HTTP 200" time="0.006" classname="05LaboratoriumServicesNodeDetailPermintaan"/>
+    <testcase name="format sukses konsisten" time="0.006" classname="05LaboratoriumServicesNodeDetailPermintaan"/>
+    <testcase name="2 item" time="0.006" classname="05LaboratoriumServicesNodeDetailPermintaan"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Validasi hasil kosong -> 400" id="819aa6c4-9456-46ac-82d4-1054842fc22b" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.010">
+    <testcase name="HTTP 400" time="0.010" classname="05LaboratoriumServicesNodeValidasiHasilKosong400"/>
+    <testcase name="error.code = BAD_REQUEST" time="0.010" classname="05LaboratoriumServicesNodeValidasiHasilKosong400"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Input hasil item 1 (Node -> Yii)" id="929ede33-dce5-4afa-b8e6-ed3c6a518407" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.074">
+    <testcase name="HTTP 200" time="0.074" classname="05LaboratoriumServicesNodeInputHasilItem1NodeYii"/>
+    <testcase name="format sukses konsisten" time="0.074" classname="05LaboratoriumServicesNodeInputHasilItem1NodeYii"/>
+    <testcase name="idempotency key diteruskan" time="0.074" classname="05LaboratoriumServicesNodeInputHasilItem1NodeYii"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Input hasil item 2" id="0de7a6a6-7795-4bba-8f9e-de0a62f027cf" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.035">
+    <testcase name="HTTP 200" time="0.035" classname="05LaboratoriumServicesNodeInputHasilItem2"/>
+    <testcase name="format sukses konsisten" time="0.035" classname="05LaboratoriumServicesNodeInputHasilItem2"/>
+    <testcase name="permintaan selesai" time="0.035" classname="05LaboratoriumServicesNodeInputHasilItem2"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Hasil per kunjungan (dibaca dokter)" id="828d44c3-958b-4dd2-a4a6-52ac41cf97f8" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.005">
+    <testcase name="HTTP 200" time="0.005" classname="05LaboratoriumServicesNodeHasilPerKunjunganDibacaDokter"/>
+    <testcase name="format sukses konsisten" time="0.005" classname="05LaboratoriumServicesNodeHasilPerKunjunganDibacaDokter"/>
+    <testcase name="2 hasil terisi" time="0.005" classname="05LaboratoriumServicesNodeHasilPerKunjunganDibacaDokter"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Yii internal tanpa service token -> 401" id="d6973d81-5d3a-4613-a1da-ca7640c437d9" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.005">
+    <testcase name="HTTP 401" time="0.005" classname="05LaboratoriumServicesNodeYiiInternalTanpaServiceToken401"/>
+    <testcase name="error.code = UNAUTHORIZED" time="0.005" classname="05LaboratoriumServicesNodeYiiInternalTanpaServiceToken401"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Yii internal: simpan (kunci baru)" id="f6e33533-b08c-4754-ad41-6f7849bba45d" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.042">
+    <testcase name="HTTP 200" time="0.042" classname="05LaboratoriumServicesNodeYiiInternalSimpanKunciBaru"/>
+    <testcase name="format sukses konsisten" time="0.042" classname="05LaboratoriumServicesNodeYiiInternalSimpanKunciBaru"/>
+    <testcase name="diproses (bukan replay)" time="0.042" classname="05LaboratoriumServicesNodeYiiInternalSimpanKunciBaru"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Yii internal: retry kunci sama -> replay (D5)" id="4918de60-58bd-4c74-9609-196530961245" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.013">
+    <testcase name="HTTP 200" time="0.013" classname="05LaboratoriumServicesNodeYiiInternalRetryKunciSamaReplayD5"/>
+    <testcase name="format sukses konsisten" time="0.013" classname="05LaboratoriumServicesNodeYiiInternalRetryKunciSamaReplayD5"/>
+    <testcase name="replayed, tidak diproses ulang" time="0.013" classname="05LaboratoriumServicesNodeYiiInternalRetryKunciSamaReplayD5"/>
+  </testsuite>
+  <testsuite name="05 Laboratorium (services-node) / Yii internal: kunci sama data beda -> 422" id="2938e89e-8d70-4d59-bf96-9128c585b7a5" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.012">
+    <testcase name="HTTP 422" time="0.012" classname="05LaboratoriumServicesNodeYiiInternalKunciSamaDataBeda422"/>
+    <testcase name="error.code = IDEMPOTENCY_KEY_REUSED" time="0.012" classname="05LaboratoriumServicesNodeYiiInternalKunciSamaDataBeda422"/>
+  </testsuite>
+  <testsuite name="06 Farmasi / Resep menunggu" id="df4eef22-0887-4635-931d-21c52efd6e0d" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.079">
+    <testcase name="HTTP 200" time="0.079" classname="06FarmasiResepMenunggu"/>
+    <testcase name="format sukses konsisten" time="0.079" classname="06FarmasiResepMenunggu"/>
+    <testcase name="resep ada" time="0.079" classname="06FarmasiResepMenunggu"/>
+  </testsuite>
+  <testsuite name="06 Farmasi / Serahkan obat" id="e1f6a41d-f611-4beb-8598-1fb707d84491" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.090">
+    <testcase name="HTTP 200" time="0.090" classname="06FarmasiSerahkanObat"/>
+    <testcase name="format sukses konsisten" time="0.090" classname="06FarmasiSerahkanObat"/>
+    <testcase name="diserahkan" time="0.090" classname="06FarmasiSerahkanObat"/>
+  </testsuite>
+  <testsuite name="06 Farmasi / Serahkan ulang -> 409 (D2)" id="1a61b984-1491-4ba6-a5c5-211550eb2be0" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.037">
+    <testcase name="HTTP 409" time="0.037" classname="06FarmasiSerahkanUlang409D2"/>
+    <testcase name="error.code = ALREADY_DISPENSED" time="0.037" classname="06FarmasiSerahkanUlang409D2"/>
+  </testsuite>
+  <testsuite name="06 Farmasi / Riwayat obat pasien (dokter)" id="677b1287-fb89-464a-9621-9bc9cc84a4a2" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.039">
+    <testcase name="HTTP 200" time="0.039" classname="06FarmasiRiwayatObatPasienDokter"/>
+    <testcase name="format sukses konsisten" time="0.039" classname="06FarmasiRiwayatObatPasienDokter"/>
+    <testcase name="2 obat" time="0.039" classname="06FarmasiRiwayatObatPasienDokter"/>
+  </testsuite>
+  <testsuite name="06 Farmasi / Rekam medis lengkap (dokter)" id="74ec072d-8c87-45e6-992d-db86ae0329aa" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.076">
+    <testcase name="HTTP 200" time="0.076" classname="06FarmasiRekamMedisLengkapDokter"/>
+    <testcase name="format sukses konsisten" time="0.076" classname="06FarmasiRekamMedisLengkapDokter"/>
+    <testcase name="pemeriksaan, tindakan, obat, lab tergabung" time="0.076" classname="06FarmasiRekamMedisLengkapDokter"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Rincian tagihan" id="c7a8fb55-a032-4043-8c62-1411d6529ade" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.063">
+    <testcase name="HTTP 200" time="0.063" classname="07BillingAmpPembayaranRincianTagihan"/>
+    <testcase name="format sukses konsisten" time="0.063" classname="07BillingAmpPembayaranRincianTagihan"/>
+    <testcase name="4 komponen biaya terisi" time="0.063" classname="07BillingAmpPembayaranRincianTagihan"/>
+    <testcase name="total = jumlah komponen" time="0.063" classname="07BillingAmpPembayaranRincianTagihan"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Bayar tanpa Idempotency-Key -> 400" id="e31bd22c-5c00-4ca4-8a9a-9af59f4819bf" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.020">
+    <testcase name="HTTP 400" time="0.020" classname="07BillingAmpPembayaranBayarTanpaIdempotencyKey400"/>
+    <testcase name="error.code = BAD_REQUEST" time="0.020" classname="07BillingAmpPembayaranBayarTanpaIdempotencyKey400"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Bayar sebagian (tunai)" id="a7ae0bd6-1a16-40e5-83dd-6295c84efb9c" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.033">
+    <testcase name="HTTP 201" time="0.033" classname="07BillingAmpPembayaranBayarSebagianTunai"/>
+    <testcase name="format sukses konsisten" time="0.033" classname="07BillingAmpPembayaranBayarSebagianTunai"/>
+    <testcase name="status dibayar sebagian" time="0.033" classname="07BillingAmpPembayaranBayarSebagianTunai"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Retry kunci sama -> tidak dobel (D3)" id="26bc3e90-8458-4988-8837-8bef9f05a72a" timestamp="2026-11-22T07:58:40.681Z" tests="5" failures="0" errors="0" time="0.040">
+    <testcase name="HTTP 200" time="0.040" classname="07BillingAmpPembayaranRetryKunciSamaTidakDobelD3"/>
+    <testcase name="format sukses konsisten" time="0.040" classname="07BillingAmpPembayaranRetryKunciSamaTidakDobelD3"/>
+    <testcase name="replayed" time="0.040" classname="07BillingAmpPembayaranRetryKunciSamaTidakDobelD3"/>
+    <testcase name="pembayaran yang sama" time="0.040" classname="07BillingAmpPembayaranRetryKunciSamaTidakDobelD3"/>
+    <testcase name="terbayar tetap 100.000" time="0.040" classname="07BillingAmpPembayaranRetryKunciSamaTidakDobelD3"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Kunci sama nominal beda -> 422" id="205f23b4-49d4-419c-9627-7cb34a049ca1" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.027">
+    <testcase name="HTTP 422" time="0.027" classname="07BillingAmpPembayaranKunciSamaNominalBeda422"/>
+    <testcase name="error.code = IDEMPOTENCY_KEY_REUSED" time="0.027" classname="07BillingAmpPembayaranKunciSamaNominalBeda422"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Bayar melebihi sisa -> 422" id="44688a81-0809-4416-9653-3546414e9041" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.034">
+    <testcase name="HTTP 422" time="0.034" classname="07BillingAmpPembayaranBayarMelebihiSisa422"/>
+    <testcase name="error.code = PAYMENT_EXCEEDS_BALANCE" time="0.034" classname="07BillingAmpPembayaranBayarMelebihiSisa422"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Non-tunai tanpa channel -> 422" id="4429f194-1162-43f2-abe5-47499ab7edc2" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.017">
+    <testcase name="HTTP 422" time="0.017" classname="07BillingAmpPembayaranNonTunaiTanpaChannel422"/>
+    <testcase name="error.code = VALIDATION_ERROR" time="0.017" classname="07BillingAmpPembayaranNonTunaiTanpaChannel422"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Pelunasan (QRIS, simulasi)" id="3f6322b1-0501-4680-a2bb-561c717dc491" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.056">
+    <testcase name="HTTP 201" time="0.056" classname="07BillingAmpPembayaranPelunasanQrisSimulasi"/>
+    <testcase name="format sukses konsisten" time="0.056" classname="07BillingAmpPembayaranPelunasanQrisSimulasi"/>
+    <testcase name="lunas" time="0.056" classname="07BillingAmpPembayaranPelunasanQrisSimulasi"/>
+    <testcase name="referensi simulasi" time="0.056" classname="07BillingAmpPembayaranPelunasanQrisSimulasi"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Kunjungan otomatis selesai" id="aac3338a-aa0a-44d8-b514-4ac9fae2913f" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.073">
+    <testcase name="HTTP 200" time="0.073" classname="07BillingAmpPembayaranKunjunganOtomatisSelesai"/>
+    <testcase name="format sukses konsisten" time="0.073" classname="07BillingAmpPembayaranKunjunganOtomatisSelesai"/>
+    <testcase name="completed" time="0.073" classname="07BillingAmpPembayaranKunjunganOtomatisSelesai"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Cetak invoice (HTML)" id="8cc45aed-6841-47db-a354-29cecd4e5bc0" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.084">
+    <testcase name="HTTP 200" time="0.084" classname="07BillingAmpPembayaranCetakInvoiceHtml"/>
+    <testcase name="HTML berisi nomor invoice" time="0.084" classname="07BillingAmpPembayaranCetakInvoiceHtml"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Cetak bukti pembayaran (HTML)" id="53f9d1d5-bc4e-49b9-845b-fdd36a731c0d" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.079">
+    <testcase name="HTTP 200" time="0.079" classname="07BillingAmpPembayaranCetakBuktiPembayaranHtml"/>
+    <testcase name="bukti pembayaran" time="0.079" classname="07BillingAmpPembayaranCetakBuktiPembayaranHtml"/>
+  </testsuite>
+  <testsuite name="07 Billing &amp; pembayaran / Riwayat pembayaran pasien" id="b49ce19b-cd5b-4c82-8d5f-b80afe9cfde7" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.038">
+    <testcase name="HTTP 200" time="0.038" classname="07BillingAmpPembayaranRiwayatPembayaranPasien"/>
+    <testcase name="format sukses konsisten" time="0.038" classname="07BillingAmpPembayaranRiwayatPembayaranPasien"/>
+    <testcase name="2 pembayaran" time="0.038" classname="07BillingAmpPembayaranRiwayatPembayaranPasien"/>
+  </testsuite>
+  <testsuite name="08 Koreksi setelah lunas (D4) / Batal tindakan tanpa alasan -> 422" id="48e5b339-49e3-47d9-9807-bc858e0a38e9" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.019">
+    <testcase name="HTTP 422" time="0.019" classname="08KoreksiSetelahLunasD4BatalTindakanTanpaAlasan422"/>
+    <testcase name="error.code = REASON_REQUIRED" time="0.019" classname="08KoreksiSetelahLunasD4BatalTindakanTanpaAlasan422"/>
+  </testsuite>
+  <testsuite name="08 Koreksi setelah lunas (D4) / Dokter batalkan nebulizer setelah lunas" id="a251d2dd-5cff-40a2-8720-b2c0a316264c" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.074">
+    <testcase name="HTTP 200" time="0.074" classname="08KoreksiSetelahLunasD4DokterBatalkanNebulizerSetelahLunas"/>
+    <testcase name="format sukses konsisten" time="0.074" classname="08KoreksiSetelahLunasD4DokterBatalkanNebulizerSetelahLunas"/>
+    <testcase name="tindakan di-void, bukan dihapus" time="0.074" classname="08KoreksiSetelahLunasD4DokterBatalkanNebulizerSetelahLunas"/>
+  </testsuite>
+  <testsuite name="08 Koreksi setelah lunas (D4) / Tagihan direvisi, muncul kelebihan bayar" id="076b3283-d387-4b64-b06d-7b477ddbfcc4" timestamp="2026-11-22T07:58:40.681Z" tests="5" failures="0" errors="0" time="0.079">
+    <testcase name="HTTP 200" time="0.079" classname="08KoreksiSetelahLunasD4TagihanDirevisiMunculKelebihanBayar"/>
+    <testcase name="format sukses konsisten" time="0.079" classname="08KoreksiSetelahLunasD4TagihanDirevisiMunculKelebihanBayar"/>
+    <testcase name="revisi naik" time="0.079" classname="08KoreksiSetelahLunasD4TagihanDirevisiMunculKelebihanBayar"/>
+    <testcase name="kelebihan bayar = tarif nebulizer" time="0.079" classname="08KoreksiSetelahLunasD4TagihanDirevisiMunculKelebihanBayar"/>
+    <testcase name="baris lama tetap terlihat dengan alasan" time="0.079" classname="08KoreksiSetelahLunasD4TagihanDirevisiMunculKelebihanBayar"/>
+  </testsuite>
+  <testsuite name="08 Koreksi setelah lunas (D4) / Refund melebihi kelebihan -> 422" id="7eccbee1-a9c1-456a-84bc-107f0fcdc209" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.044">
+    <testcase name="HTTP 422" time="0.044" classname="08KoreksiSetelahLunasD4RefundMelebihiKelebihan422"/>
+    <testcase name="error.code = REFUND_EXCEEDS_OVERPAID" time="0.044" classname="08KoreksiSetelahLunasD4RefundMelebihiKelebihan422"/>
+  </testsuite>
+  <testsuite name="08 Koreksi setelah lunas (D4) / Refund kelebihan bayar" id="026623e5-7d78-47ae-9038-dc85d67edddb" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.050">
+    <testcase name="HTTP 201" time="0.050" classname="08KoreksiSetelahLunasD4RefundKelebihanBayar"/>
+    <testcase name="format sukses konsisten" time="0.050" classname="08KoreksiSetelahLunasD4RefundKelebihanBayar"/>
+    <testcase name="jenis refund" time="0.050" classname="08KoreksiSetelahLunasD4RefundKelebihanBayar"/>
+    <testcase name="tidak ada kelebihan lagi" time="0.050" classname="08KoreksiSetelahLunasD4RefundKelebihanBayar"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Ringkasan" id="c1d5a8a3-0ec6-42f0-9701-935fbd2d84fc" timestamp="2026-11-22T07:58:40.681Z" tests="4" failures="0" errors="0" time="0.021">
+    <testcase name="HTTP 200" time="0.021" classname="09DashboardAmpLaporanServicesNodeRingkasan"/>
+    <testcase name="format sukses konsisten" time="0.021" classname="09DashboardAmpLaporanServicesNodeRingkasan"/>
+    <testcase name="angka ringkasan" time="0.021" classname="09DashboardAmpLaporanServicesNodeRingkasan"/>
+    <testcase name="periode di meta" time="0.021" classname="09DashboardAmpLaporanServicesNodeRingkasan"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Pendapatan harian" id="3715b357-35ad-46e6-abfd-f9629e0cda99" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.005">
+    <testcase name="HTTP 200" time="0.005" classname="09DashboardAmpLaporanServicesNodePendapatanHarian"/>
+    <testcase name="format sukses konsisten" time="0.005" classname="09DashboardAmpLaporanServicesNodePendapatanHarian"/>
+    <testcase name="tunai &amp; non-tunai" time="0.005" classname="09DashboardAmpLaporanServicesNodePendapatanHarian"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Kunjungan per poli" id="8bf1aedd-34b8-4ccf-99a9-12fbaeeaf83e" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.004">
+    <testcase name="HTTP 200" time="0.004" classname="09DashboardAmpLaporanServicesNodeKunjunganPerPoli"/>
+    <testcase name="format sukses konsisten" time="0.004" classname="09DashboardAmpLaporanServicesNodeKunjunganPerPoli"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Tindakan medis" id="3647a829-4b0c-4711-8348-0186cd27a388" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.005">
+    <testcase name="HTTP 200" time="0.005" classname="09DashboardAmpLaporanServicesNodeTindakanMedis"/>
+    <testcase name="format sukses konsisten" time="0.005" classname="09DashboardAmpLaporanServicesNodeTindakanMedis"/>
+    <testcase name="ada tindakan" time="0.005" classname="09DashboardAmpLaporanServicesNodeTindakanMedis"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Rekap penggunaan obat" id="b2a31b64-1026-44ca-a97f-3bcf2579b446" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.004">
+    <testcase name="HTTP 200" time="0.004" classname="09DashboardAmpLaporanServicesNodeRekapPenggunaanObat"/>
+    <testcase name="format sukses konsisten" time="0.004" classname="09DashboardAmpLaporanServicesNodeRekapPenggunaanObat"/>
+    <testcase name="obat keluar tercatat" time="0.004" classname="09DashboardAmpLaporanServicesNodeRekapPenggunaanObat"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Status pembayaran" id="cf7c5956-a971-410b-a8f0-52c735c637b2" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.004">
+    <testcase name="HTTP 200" time="0.004" classname="09DashboardAmpLaporanServicesNodeStatusPembayaran"/>
+    <testcase name="format sukses konsisten" time="0.004" classname="09DashboardAmpLaporanServicesNodeStatusPembayaran"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Rincian kunjungan lunas" id="f4ff72da-ca41-41e9-82c2-e7ca334eb401" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.008">
+    <testcase name="HTTP 200" time="0.008" classname="09DashboardAmpLaporanServicesNodeRincianKunjunganLunas"/>
+    <testcase name="format sukses konsisten" time="0.008" classname="09DashboardAmpLaporanServicesNodeRincianKunjunganLunas"/>
+    <testcase name="kunjungan Postman termasuk" time="0.008" classname="09DashboardAmpLaporanServicesNodeRincianKunjunganLunas"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Periode terbalik -> 400" id="7e263cba-fe41-4d1c-8617-a9f89911fb86" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="HTTP 400" time="0.003" classname="09DashboardAmpLaporanServicesNodePeriodeTerbalik400"/>
+    <testcase name="error.code = BAD_REQUEST" time="0.003" classname="09DashboardAmpLaporanServicesNodePeriodeTerbalik400"/>
+  </testsuite>
+  <testsuite name="09 Dashboard &amp; laporan (services-node) / Petugas lab buka dashboard -> 403" id="e52f01c9-1643-4a31-8763-681dbec4ebbd" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="HTTP 403" time="0.003" classname="09DashboardAmpLaporanServicesNodePetugasLabBukaDashboard403"/>
+    <testcase name="error.code = FORBIDDEN" time="0.003" classname="09DashboardAmpLaporanServicesNodePetugasLabBukaDashboard403"/>
+  </testsuite>
+  <testsuite name="10 Integrasi &amp; format error / Event tanpa service token -> 401" id="ab8cc3b6-cb88-4678-a134-62575b5e9fa2" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="HTTP 401" time="0.002" classname="10IntegrasiAmpFormatErrorEventTanpaServiceToken401"/>
+    <testcase name="error.code = UNAUTHORIZED" time="0.002" classname="10IntegrasiAmpFormatErrorEventTanpaServiceToken401"/>
+  </testsuite>
+  <testsuite name="10 Integrasi &amp; format error / Terima event outbox" id="e9ad4102-da4c-471d-a980-ec031beac65c" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.003">
+    <testcase name="HTTP 202" time="0.003" classname="10IntegrasiAmpFormatErrorTerimaEventOutbox"/>
+    <testcase name="format sukses konsisten" time="0.003" classname="10IntegrasiAmpFormatErrorTerimaEventOutbox"/>
+    <testcase name="baru" time="0.003" classname="10IntegrasiAmpFormatErrorTerimaEventOutbox"/>
+  </testsuite>
+  <testsuite name="10 Integrasi &amp; format error / Event sama dikirim ulang -> idempoten" id="f8bb0ee7-4a5b-4781-8a90-0cd91bb6a1f2" timestamp="2026-11-22T07:58:40.681Z" tests="3" failures="0" errors="0" time="0.002">
+    <testcase name="HTTP 202" time="0.002" classname="10IntegrasiAmpFormatErrorEventSamaDikirimUlangIdempoten"/>
+    <testcase name="format sukses konsisten" time="0.002" classname="10IntegrasiAmpFormatErrorEventSamaDikirimUlangIdempoten"/>
+    <testcase name="duplikat dikenali" time="0.002" classname="10IntegrasiAmpFormatErrorEventSamaDikirimUlangIdempoten"/>
+  </testsuite>
+  <testsuite name="10 Integrasi &amp; format error / Route Yii tidak ada -> 404" id="5a22f884-5999-4c68-a9d5-37d6ed15e9a1" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.006">
+    <testcase name="HTTP 404" time="0.006" classname="10IntegrasiAmpFormatErrorRouteYiiTidakAda404"/>
+    <testcase name="error.code = NOT_FOUND" time="0.006" classname="10IntegrasiAmpFormatErrorRouteYiiTidakAda404"/>
+  </testsuite>
+  <testsuite name="10 Integrasi &amp; format error / Route Node tidak ada -> 404" id="cbbc569a-f749-42de-accf-76790ae9b424" timestamp="2026-11-22T07:58:40.681Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="HTTP 404" time="0.003" classname="10IntegrasiAmpFormatErrorRouteNodeTidakAda404"/>
+    <testcase name="error.code = NOT_FOUND" time="0.003" classname="10IntegrasiAmpFormatErrorRouteNodeTidakAda404"/>
+  </testsuite>
+</testsuites>

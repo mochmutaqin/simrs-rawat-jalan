@@ -137,6 +137,7 @@ test('lab: daftar permintaan + paginasi', async () => {
   assert.equal(r.json.data[0].item_count, 2);
   assert.equal(r.json.data[0].resulted_count, 0);
   assert.equal(r.json.data[0].patient_name, 'Ani');
+  assert.equal(typeof r.json.data[0].id, 'number', 'id bigint harus number, konsisten dengan Yii');
 });
 
 test('lab: validasi query -> 400 dengan detail field', async () => {

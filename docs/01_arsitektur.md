@@ -210,4 +210,4 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_readonly;
 | Backend Yii2 (auth, RBAC, master data, alur pendaftaran → pembayaran, cetak invoice/struk) | selesai, 43 tes lolos, PHPStan level 5 bersih |
 | services-node (lab, dashboard, integrasi, CORS) | selesai, 19 tes lolos |
 | Frontend React (semua role, dashboard, master data) | selesai, uji end-to-end browser lolos, 18 screenshot di `docs/screenshots/` |
-| Postman collection | berikutnya |
+| Postman collection | selesai, 102 request / 286 assertion lolos (`postman/`) |

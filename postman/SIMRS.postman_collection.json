@@ -1,0 +1,3582 @@
+{
+  "info": {
+    "_postman_id": "8e1072fc-df83-5d2b-8cbe-25bfc186b82d",
+    "name": "SIMRS Rawat Jalan API",
+    "description": "Pengujian API backend Yii2 dan services-node.\n\nJalankan berurutan dengan Collection Runner (folder 00 → 10): login semua role, master data, pendaftaran, pemeriksaan, lab (lewat Node), farmasi, billing, koreksi setelah lunas, dashboard, integrasi.\nID dan token disimpan otomatis ke collection variable. Data dibuat unik setiap kali dijalankan, jadi collection bisa diulang tanpa reset database.\n\nFormat response kedua backend: sukses {success:true,data,meta} / gagal {success:false,error:{code,message,details}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Kesehatan service",
+      "item": [
+        {
+          "name": "Yii health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('database up', () => pm.expect(j.data.database).to.eql('up'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/health",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Node health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('database up', () => pm.expect(j.data.database).to.eql('up'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/health",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 Autentikasi",
+      "item": [
+        {
+          "name": "Login gagal (password salah)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = INVALID_CREDENTIALS', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('INVALID_CREDENTIALS'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"kasir\",\n  \"password\": \"salah-sekali\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login validasi (kosong)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('detail per field', () => pm.expect(j.error.details.map(d => d.field)).to.include.members(['username','password']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role admin', () => pm.expect(j.data.user.role).to.eql('admin'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_admin', j.data.token);",
+                  "pm.collectionVariables.set('token_admin_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login pendaftaran",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role registration', () => pm.expect(j.data.user.role).to.eql('registration'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_reg', j.data.token);",
+                  "pm.collectionVariables.set('token_reg_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"pendaftaran\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login dokter.umum",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role doctor', () => pm.expect(j.data.user.role).to.eql('doctor'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_doctor', j.data.token);",
+                  "pm.collectionVariables.set('token_doctor_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"dokter.umum\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login dokter.gigi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role doctor', () => pm.expect(j.data.user.role).to.eql('doctor'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_doctor2', j.data.token);",
+                  "pm.collectionVariables.set('token_doctor2_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"dokter.gigi\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login farmasi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role pharmacy', () => pm.expect(j.data.user.role).to.eql('pharmacy'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_pharmacy', j.data.token);",
+                  "pm.collectionVariables.set('token_pharmacy_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"farmasi\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login lab",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role lab', () => pm.expect(j.data.user.role).to.eql('lab'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_lab', j.data.token);",
+                  "pm.collectionVariables.set('token_lab_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"lab\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login kasir",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('role cashier', () => pm.expect(j.data.user.role).to.eql('cashier'));",
+                  "pm.test('token JWT', () => pm.expect(j.data.token.split('.').length).to.eql(3));",
+                  "pm.collectionVariables.set('token_cashier', j.data.token);",
+                  "pm.collectionVariables.set('token_cashier_user_id', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"kasir\",\n  \"password\": \"{{demo_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Profil (me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('permission kasir', () => pm.expect(j.data.permissions).to.include('payment.create').and.not.include('exam.manage'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/auth/me",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cashier}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tanpa token -> 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = UNAUTHORIZED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('UNAUTHORIZED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/auth/me",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Token rusak -> 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = UNAUTHORIZED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('UNAUTHORIZED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/auth/me",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "abc.def.ghi",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Login semua role dan simpan token ke collection variable. Jalankan folder ini lebih dulu."
+    },
+    {
+      "name": "02 Master data",
+      "item": [
+        {
+          "name": "Daftar poli aktif",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('meta paginasi', () => pm.expect(j.meta).to.have.keys('page','limit','total','total_pages'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/polis?is_active=true&limit=50"
+          }
+        },
+        {
+          "name": "Tambah poli",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('poli_code', 'pm' + Date.now().toString().slice(-6));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('kode dinormalisasi huruf besar', () => pm.expect(j.data.code).to.eql(pm.collectionVariables.get('poli_code').toUpperCase()));",
+                  "pm.collectionVariables.set('poli_test_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/polis",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{poli_code}}\",\n  \"name\": \"Poli Uji Postman\",\n  \"registration_fee\": 20000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tambah poli kode sama -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('field code', () => pm.expect(j.error.details[0].field).to.eql('code'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/polis",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{poli_code}}\",\n  \"name\": \"Duplikat\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Ubah tarif poli",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('tarif berubah', () => pm.expect(j.data.registration_fee).to.eql(22000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/polis/{{poli_test_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registration_fee\": 22000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Nonaktifkan poli (soft delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('is_active false', () => pm.expect(j.data.is_active).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{yii_url}}/api/polis/{{poli_test_id}}"
+          }
+        },
+        {
+          "name": "Cari tindakan konsultasi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('procedure_consult_id', j.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/procedures?q=TND-001"
+          }
+        },
+        {
+          "name": "Cari tindakan nebulizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('procedure_neb_id', j.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/procedures?q=TND-003"
+          }
+        },
+        {
+          "name": "Cari obat paracetamol",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('medicine_pct_id', j.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/medicines?q=PCT500"
+          }
+        },
+        {
+          "name": "Cari obat vitamin C",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('medicine_vitc_id', j.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/medicines?q=VITC"
+          }
+        },
+        {
+          "name": "Cari tes lab hemoglobin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('labtest_hb_id', j.data.find(t => t.code === 'HB').id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/lab-tests?q=HB"
+          }
+        },
+        {
+          "name": "Cari tes lab gula darah",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('labtest_gds_id', j.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/lab-tests?q=GDS"
+          }
+        },
+        {
+          "name": "Stok masuk (farmasi)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('stok bertambah', () => pm.expect(j.data.stock).to.be.above(49));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/medicines/{{medicine_pct_id}}/stock",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"in\",\n  \"quantity\": 50,\n  \"note\": \"Penerimaan dari PBF (Postman)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_pharmacy}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Penyesuaian stok tanpa alasan -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/medicines/{{medicine_pct_id}}/stock",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"adjustment\",\n  \"quantity\": -1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_pharmacy}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Kartu stok",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('mutasi terbaru = in 50', () => pm.expect(j.data[0].quantity).to.eql(50));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/medicines/{{medicine_pct_id}}/movements?limit=5",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_pharmacy}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_admin}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "03 Pasien & pendaftaran",
+      "item": [
+        {
+          "name": "Tambah pasien baru",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const s = Date.now().toString();",
+                  "pm.collectionVariables.set('patient_nik', '3273' + s.slice(-12));",
+                  "pm.collectionVariables.set('patient_name', 'Pasien Postman ' + s.slice(-5));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('nomor RM otomatis', () => pm.expect(j.data.medical_record_no).to.match(/^RM-\\d{6}$/));",
+                  "pm.collectionVariables.set('patient_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/patients",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"{{patient_nik}}\",\n  \"name\": \"{{patient_name}}\",\n  \"birth_date\": \"1987-06-15\",\n  \"gender\": \"P\",\n  \"address\": \"Jl. Asia Afrika No. 8, Bandung\",\n  \"phone\": \"081311112222\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Validasi pasien -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('semua field salah dilaporkan', () => pm.expect(j.error.details.map(d => d.field)).to.include.members(['nik','name','birth_date','gender']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/patients",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"123\",\n  \"name\": \"\",\n  \"birth_date\": \"2999-01-01\",\n  \"gender\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Pasien kembar (nama + tgl lahir) -> 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = POSSIBLE_DUPLICATE', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('POSSIBLE_DUPLICATE'); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('kandidat ditampilkan', () => pm.expect(j.error.details[0].medical_record_no).to.match(/^RM-/));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/patients",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{patient_name}}\",\n  \"birth_date\": \"1987-06-15\",\n  \"gender\": \"P\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Cari pasien (NIK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('ketemu 1', () => pm.expect(j.meta.total).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/patients?q={{patient_nik}}"
+          }
+        },
+        {
+          "name": "Jadwal dokter hari ini",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('today', new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "const umum = j.data.find(s => s.poli_name === 'Poli Umum');",
+                  "const gigi = j.data.find(s => s.poli_name === 'Poli Gigi');",
+                  "pm.test('ada jadwal Poli Umum & Gigi', () => { pm.expect(umum).to.be.an('object'); pm.expect(gigi).to.be.an('object'); });",
+                  "pm.test('sisa kuota dihitung', () => pm.expect(umum.remaining).to.be.a('number'));",
+                  "pm.collectionVariables.set('schedule_umum_id', umum.schedule_id);",
+                  "pm.collectionVariables.set('schedule_gigi_id', gigi.schedule_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/doctor-schedules/available?date={{today}}"
+          }
+        },
+        {
+          "name": "Daftarkan kunjungan (Poli Umum)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('status menunggu + nomor antrean', () => { pm.expect(j.data.status).to.eql('waiting'); pm.expect(j.data.queue_code).to.match(/^UMUM-\\d{3}$/); });",
+                  "pm.collectionVariables.set('visit_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"schedule_id\": \"{{schedule_umum_id}}\",\n  \"notes\": \"Didaftarkan dari Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Daftar ulang pasien sama -> 409 (D1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = DUPLICATE_VISIT', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('DUPLICATE_VISIT'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"schedule_id\": \"{{schedule_umum_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Antrean hari ini",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('kunjungan baru ada di antrean', () => pm.expect(j.data.map(v => v.id)).to.include(pm.collectionVariables.get('visit_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/visits?date={{today}}&limit=100"
+          }
+        },
+        {
+          "name": "Tagihan otomatis dibuat (kasir)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('biaya pendaftaran masuk, belum dibayar', () => { pm.expect(j.data.summary.registration).to.be.above(0); pm.expect(j.data.status).to.eql('unpaid'); });",
+                  "pm.collectionVariables.set('invoice_id', j.data.id);",
+                  "pm.collectionVariables.set('invoice_no', j.data.invoice_no);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/invoice",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cashier}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pasien kedua (untuk uji batal)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('patient2_nik', '3273' + (Date.now() + 7).toString().slice(-12));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('patient2_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/patients",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"{{patient2_nik}}\",\n  \"name\": \"Pasien Batal {{patient2_nik}}\",\n  \"birth_date\": \"1995-02-02\",\n  \"gender\": \"L\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Daftarkan pasien kedua (Poli Gigi)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('visit2_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": \"{{patient2_id}}\",\n  \"schedule_id\": \"{{schedule_gigi_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Batalkan tanpa alasan -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = REASON_REQUIRED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('REASON_REQUIRED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit2_id}}/cancel",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Batalkan kunjungan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('status batal', () => pm.expect(j.data.status).to.eql('cancelled'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit2_id}}/cancel",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Pasien pulang sebelum dipanggil\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_reg}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "04 Pemeriksaan dokter",
+      "item": [
+        {
+          "name": "Kasir buat resep -> 403 (RBAC)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = FORBIDDEN', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('FORBIDDEN'); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('menyebut permission', () => pm.expect(j.error.message).to.include('prescription.manage'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/prescriptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cashier}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dokter lain periksa pasien ini -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = FORBIDDEN', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('FORBIDDEN'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anamnesis\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_doctor2}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Antrean dokter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('pasien ada di antrean dokter', () => pm.expect(j.data.map(v => v.id)).to.include(pm.collectionVariables.get('visit_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/examinations/queue"
+          }
+        },
+        {
+          "name": "Panggil pasien",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('status diperiksa', () => pm.expect(j.data.status).to.eql('in_exam'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/call"
+          }
+        },
+        {
+          "name": "Vital sign tidak wajar -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('field temperature & bp_diastolic', () => pm.expect(j.error.details.map(d => d.field)).to.include.members(['temperature','bp_diastolic']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"temperature\": 60,\n  \"bp_systolic\": 80,\n  \"bp_diastolic\": 95\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Simpan anamnesis, vital sign, diagnosis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('diagnosis utama & sekunder', () => pm.expect(j.data.diagnoses.map(d => d.icd10_code)).to.eql(['J06.9','R50.9']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chief_complaint\": \"Demam dan batuk 3 hari\",\n  \"anamnesis\": \"Demam naik turun, batuk berdahak, tidak sesak.\",\n  \"bp_systolic\": 120,\n  \"bp_diastolic\": 80,\n  \"heart_rate\": 90,\n  \"resp_rate\": 20,\n  \"temperature\": 38.2,\n  \"spo2\": 98,\n  \"weight_kg\": 60,\n  \"height_cm\": 162,\n  \"physical_exam\": \"Faring hiperemis, paru vesikuler.\",\n  \"diagnoses\": [\n    {\n      \"icd10_code\": \"J06.9\",\n      \"diagnosis_name\": \"ISPA\",\n      \"diagnosis_type\": \"primary\"\n    },\n    {\n      \"icd10_code\": \"R50.9\",\n      \"diagnosis_name\": \"Demam\",\n      \"diagnosis_type\": \"secondary\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tambah tindakan konsultasi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('tarif tersalin', () => pm.expect(j.data.unit_price).to.be.above(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/procedures",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"procedure_id\": \"{{procedure_consult_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tambah tindakan nebulizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('visit_procedure_neb_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/procedures",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"procedure_id\": \"{{procedure_neb_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Resep melebihi stok -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/prescriptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"medicine_id\": \"{{medicine_pct_id}}\",\n      \"dose\": \"500 mg\",\n      \"frequency\": \"3x1\",\n      \"quantity\": 999999\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Buat resep",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('status menunggu farmasi', () => pm.expect(j.data.status).to.eql('pending'));",
+                  "pm.collectionVariables.set('prescription_id', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/prescriptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Habiskan antibiotik bila diresepkan\",\n  \"items\": [\n    {\n      \"medicine_id\": \"{{medicine_pct_id}}\",\n      \"dose\": \"500 mg\",\n      \"frequency\": \"3x sehari\",\n      \"quantity\": 10,\n      \"instructions\": \"sesudah makan\"\n    },\n    {\n      \"medicine_id\": \"{{medicine_vitc_id}}\",\n      \"dose\": \"500 mg\",\n      \"frequency\": \"1x sehari\",\n      \"quantity\": 5\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Permintaan laboratorium",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.collectionVariables.set('lab_request_id', j.data.id);",
+                  "pm.collectionVariables.set('lab_item_1', j.data.items[0].id);",
+                  "pm.collectionVariables.set('lab_item_2', j.data.items[1].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/lab-requests",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"test_ids\": [\n    \"{{labtest_hb_id}}\",\n    \"{{labtest_gds_id}}\"\n  ],\n  \"notes\": \"Curiga infeksi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Selesaikan pemeriksaan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('final', () => pm.expect(j.data.status).to.eql('final'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination/finalize"
+          }
+        },
+        {
+          "name": "Ubah diagnosis setelah final tanpa alasan -> 422 (D4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = REASON_REQUIRED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('REASON_REQUIRED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnoses\": [\n    {\n      \"icd10_code\": \"J06.9\",\n      \"diagnosis_name\": \"ISPA\",\n      \"diagnosis_type\": \"primary\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Ubah diagnosis dengan alasan (D4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('versi naik', () => pm.expect(j.data.version).to.be.above(1));",
+                  "pm.test('tinggal 1 diagnosis aktif', () => pm.expect(j.data.diagnoses.length).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnoses\": [\n    {\n      \"icd10_code\": \"J06.9\",\n      \"diagnosis_name\": \"ISPA\",\n      \"diagnosis_type\": \"primary\"\n    }\n  ],\n  \"reason\": \"Demam bagian dari ISPA, diagnosis sekunder dihapus\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Jejak perubahan (audit)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('alasan tercatat', () => pm.expect(j.data.some(a => (a.reason || '').includes('Demam bagian dari ISPA'))).to.eql(true));",
+                  "pm.test('pelaku tercatat', () => pm.expect(j.data.map(a => a.changed_by)).to.include('dr. Andi Pratama'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/examination/history"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_doctor}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "05 Laboratorium (services-node)",
+      "item": [
+        {
+          "name": "Worklist permintaan baru",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('permintaan ada', () => pm.expect(j.data.map(r => r.id)).to.include(pm.collectionVariables.get('lab_request_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/lab/requests?status=requested&limit=50"
+          }
+        },
+        {
+          "name": "Detail permintaan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('2 item', () => pm.expect(j.data.items.length).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/lab/requests/{{lab_request_id}}"
+          }
+        },
+        {
+          "name": "Validasi hasil kosong -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = BAD_REQUEST', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('BAD_REQUEST'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{node_url}}/api/v1/lab/items/{{lab_item_1}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Input hasil item 1 (Node -> Yii)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('lab_key_1', 'pm-lab-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('idempotency key diteruskan', () => pm.expect(j.meta.idempotency_key).to.eql(pm.collectionVariables.get('lab_key_1')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{lab_key_1}}"
+              }
+            ],
+            "url": "{{node_url}}/api/v1/lab/items/{{lab_item_1}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"13.1\",\n  \"result_unit\": \"g/dL\",\n  \"result_flag\": \"normal\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Input hasil item 2",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('lab_key_2', 'pm-lab-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('permintaan selesai', () => pm.expect(j.data.request_status).to.eql('completed'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{lab_key_2}}"
+              }
+            ],
+            "url": "{{node_url}}/api/v1/lab/items/{{lab_item_2}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"155\",\n  \"result_unit\": \"mg/dL\",\n  \"result_flag\": \"high\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hasil per kunjungan (dibaca dokter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('2 hasil terisi', () => pm.expect(j.data.filter(r => r.result_value).length).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/lab/visits/{{visit_id}}/results"
+          }
+        },
+        {
+          "name": "Yii internal tanpa service token -> 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = UNAUTHORIZED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('UNAUTHORIZED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-noauth-0001"
+              }
+            ],
+            "url": "{{yii_url}}/internal/lab-items/{{lab_item_1}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Yii internal: simpan (kunci baru)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('lab_key_3', 'pm-int-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('diproses (bukan replay)', () => pm.expect(j.meta.replayed).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "{{service_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{lab_key_3}}"
+              }
+            ],
+            "url": "{{yii_url}}/internal/lab-items/{{lab_item_1}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"13.4\",\n  \"result_unit\": \"g/dL\",\n  \"result_flag\": \"normal\",\n  \"resulted_by\": \"{{token_lab_user_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Yii internal: retry kunci sama -> replay (D5)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('replayed, tidak diproses ulang', () => pm.expect(j.meta.replayed).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "{{service_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{lab_key_3}}"
+              }
+            ],
+            "url": "{{yii_url}}/internal/lab-items/{{lab_item_1}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"13.4\",\n  \"result_unit\": \"g/dL\",\n  \"result_flag\": \"normal\",\n  \"resulted_by\": \"{{token_lab_user_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Yii internal: kunci sama data beda -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = IDEMPOTENCY_KEY_REUSED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('IDEMPOTENCY_KEY_REUSED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "{{service_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{lab_key_3}}"
+              }
+            ],
+            "url": "{{yii_url}}/internal/lab-items/{{lab_item_1}}/result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result_value\": \"99\",\n  \"resulted_by\": \"{{token_lab_user_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_lab}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "Petugas lab bekerja lewat services-node. Node memvalidasi request lalu meneruskan penulisan ke endpoint internal Yii (satu pintu tulis)."
+    },
+    {
+      "name": "06 Farmasi",
+      "item": [
+        {
+          "name": "Resep menunggu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('resep ada', () => pm.expect(j.data.map(p => p.id)).to.include(pm.collectionVariables.get('prescription_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/prescriptions?status=pending&limit=100"
+          }
+        },
+        {
+          "name": "Serahkan obat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('diserahkan', () => pm.expect(j.data.status).to.eql('dispensed'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{yii_url}}/api/prescriptions/{{prescription_id}}/dispense"
+          }
+        },
+        {
+          "name": "Serahkan ulang -> 409 (D2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = ALREADY_DISPENSED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('ALREADY_DISPENSED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{yii_url}}/api/prescriptions/{{prescription_id}}/dispense"
+          }
+        },
+        {
+          "name": "Riwayat obat pasien (dokter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('2 obat', () => pm.expect(j.meta.total).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/patients/{{patient_id}}/medications",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_doctor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rekam medis lengkap (dokter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "const v = j.data.visits[0];",
+                  "pm.test('pemeriksaan, tindakan, obat, lab tergabung', () => { pm.expect(v.examination.status).to.eql('final'); pm.expect(v.procedures.length).to.eql(2); pm.expect(v.medications.length).to.eql(2); pm.expect(v.lab_results.length).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/patients/{{patient_id}}/medical-records",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_doctor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_pharmacy}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "07 Billing & pembayaran",
+      "item": [
+        {
+          "name": "Rincian tagihan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "const s = j.data.summary;",
+                  "pm.test('4 komponen biaya terisi', () => ['registration','procedure','lab','medicine'].forEach(k => pm.expect(s[k]).to.be.above(0)));",
+                  "pm.test('total = jumlah komponen', () => pm.expect(j.data.total_amount).to.eql(s.registration + s.procedure + s.lab + s.medicine));",
+                  "pm.collectionVariables.set('invoice_total', j.data.total_amount);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}"
+          }
+        },
+        {
+          "name": "Bayar tanpa Idempotency-Key -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = BAD_REQUEST', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('BAD_REQUEST'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10000,\n  \"method\": \"cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Bayar sebagian (tunai)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('pay_key_1', 'pm-pay-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('status dibayar sebagian', () => pm.expect(j.data.invoice.status).to.eql('partial'));",
+                  "pm.collectionVariables.set('payment_id_1', j.data.payment.id);",
+                  "pm.collectionVariables.set('invoice_balance', j.data.invoice.balance);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key_1}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100000,\n  \"method\": \"cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Retry kunci sama -> tidak dobel (D3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('replayed', () => pm.expect(j.meta.replayed).to.eql(true));",
+                  "pm.test('pembayaran yang sama', () => pm.expect(j.data.payment.id).to.eql(pm.collectionVariables.get('payment_id_1')));",
+                  "pm.test('terbayar tetap 100.000', () => pm.expect(j.data.invoice.paid_amount).to.eql(100000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key_1}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100000,\n  \"method\": \"cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Kunci sama nominal beda -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = IDEMPOTENCY_KEY_REUSED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('IDEMPOTENCY_KEY_REUSED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key_1}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000,\n  \"method\": \"cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Bayar melebihi sisa -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = PAYMENT_EXCEEDS_BALANCE', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('PAYMENT_EXCEEDS_BALANCE'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-over-{{$guid}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 99999999,\n  \"method\": \"cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Non-tunai tanpa channel -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = VALIDATION_ERROR', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('VALIDATION_ERROR'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-noch-{{$guid}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"method\": \"non_cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Pelunasan (QRIS, simulasi)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('pay_key_2', 'pm-pay-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('lunas', () => pm.expect(j.data.invoice.status).to.eql('paid'));",
+                  "pm.test('referensi simulasi', () => pm.expect(j.data.payment.reference_no).to.match(/^SIM-/));",
+                  "pm.collectionVariables.set('payment_id_2', j.data.payment.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key_2}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"{{invoice_balance}}\",\n  \"method\": \"non_cash\",\n  \"channel\": \"qris\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Kunjungan otomatis selesai",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('completed', () => pm.expect(j.data.status).to.eql('completed'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_reg}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cetak invoice (HTML)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('HTML berisi nomor invoice', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('text/html'); pm.expect(pm.response.text()).to.include(pm.collectionVariables.get('invoice_no')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/print"
+          }
+        },
+        {
+          "name": "Cetak bukti pembayaran (HTML)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('bukti pembayaran', () => pm.expect(pm.response.text()).to.include('BUKTI PEMBAYARAN'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html"
+              }
+            ],
+            "url": "{{yii_url}}/api/payments/{{payment_id_1}}/receipt"
+          }
+        },
+        {
+          "name": "Riwayat pembayaran pasien",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('2 pembayaran', () => pm.expect(j.meta.total).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/patients/{{patient_id}}/payments"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_cashier}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "08 Koreksi setelah lunas (D4)",
+      "item": [
+        {
+          "name": "Batal tindakan tanpa alasan -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = REASON_REQUIRED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('REASON_REQUIRED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/procedures/{{visit_procedure_neb_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_doctor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dokter batalkan nebulizer setelah lunas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('tindakan di-void, bukan dihapus', () => pm.expect(j.data.voided_at).to.not.eql(null));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{yii_url}}/api/visits/{{visit_id}}/procedures/{{visit_procedure_neb_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Nebulizer tidak jadi diberikan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_doctor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tagihan direvisi, muncul kelebihan bayar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('revisi naik', () => pm.expect(j.data.revision).to.be.above(1));",
+                  "pm.test('kelebihan bayar = tarif nebulizer', () => pm.expect(j.data.overpaid_amount).to.be.above(0));",
+                  "pm.test('baris lama tetap terlihat dengan alasan', () => pm.expect(j.data.items.some(i => i.void_reason === 'Nebulizer tidak jadi diberikan')).to.eql(true));",
+                  "pm.collectionVariables.set('overpaid', j.data.overpaid_amount);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}"
+          }
+        },
+        {
+          "name": "Refund melebihi kelebihan -> 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = REFUND_EXCEEDS_OVERPAID', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('REFUND_EXCEEDS_OVERPAID'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-ref-x-{{$guid}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/refunds",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 99999999,\n  \"method\": \"cash\",\n  \"reason\": \"Uji batas refund\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Refund kelebihan bayar",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('refund_key', 'pm-ref-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('jenis refund', () => pm.expect(j.data.payment.kind).to.eql('refund'));",
+                  "pm.test('tidak ada kelebihan lagi', () => { pm.expect(j.data.invoice.overpaid_amount).to.eql(0); pm.expect(j.data.invoice.status).to.eql('paid'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{refund_key}}"
+              }
+            ],
+            "url": "{{yii_url}}/api/invoices/{{invoice_id}}/refunds",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"{{overpaid}}\",\n  \"method\": \"cash\",\n  \"reason\": \"Pengembalian biaya nebulizer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_cashier}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "09 Dashboard & laporan (services-node)",
+      "item": [
+        {
+          "name": "Ringkasan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('angka ringkasan', () => { pm.expect(j.data.total_visits).to.be.above(0); pm.expect(j.data.revenue_received).to.be.above(0); pm.expect(j.data.visits_by_poli).to.be.an('array'); pm.expect(j.data.payment_status).to.be.an('array'); });",
+                  "pm.test('periode di meta', () => pm.expect(j.meta.from).to.eql(pm.collectionVariables.get('today')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/summary?from={{today}}&to={{today}}"
+          }
+        },
+        {
+          "name": "Pendapatan harian",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('tunai & non-tunai', () => pm.expect(j.data[0]).to.include.keys('cash','non_cash','amount'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/revenue?from={{today}}&to={{today}}"
+          }
+        },
+        {
+          "name": "Kunjungan per poli",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/visits-by-poli?from={{today}}&to={{today}}"
+          }
+        },
+        {
+          "name": "Tindakan medis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('ada tindakan', () => pm.expect(j.data.length).to.be.above(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/procedures?from={{today}}&to={{today}}"
+          }
+        },
+        {
+          "name": "Rekap penggunaan obat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('obat keluar tercatat', () => pm.expect(j.data.map(m => m.code)).to.include('PCT500'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/medicine-usage?from={{today}}&to={{today}}"
+          }
+        },
+        {
+          "name": "Status pembayaran",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/payment-status?from={{today}}&to={{today}}"
+          }
+        },
+        {
+          "name": "Rincian kunjungan lunas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('kunjungan Postman termasuk', () => pm.expect(j.data.map(v => v.id)).to.include(pm.collectionVariables.get('visit_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/details/visits?from={{today}}&to={{today}}&payment_status=paid&limit=50"
+          }
+        },
+        {
+          "name": "Periode terbalik -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = BAD_REQUEST', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('BAD_REQUEST'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/summary?from=2026-12-31&to=2026-01-01"
+          }
+        },
+        {
+          "name": "Petugas lab buka dashboard -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = FORBIDDEN', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('FORBIDDEN'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/dashboard/summary",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_lab}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_admin}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "10 Integrasi & format error",
+      "item": [
+        {
+          "name": "Event tanpa service token -> 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = UNAUTHORIZED', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('UNAUTHORIZED'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{node_url}}/api/v1/integration/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"x\",\n  \"type\": \"lab.requested\",\n  \"payload\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Terima event outbox",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('event_id', 'pm-' + pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('baru', () => pm.expect(j.data.duplicate).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "{{service_token}}"
+              }
+            ],
+            "url": "{{node_url}}/api/v1/integration/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{event_id}}\",\n  \"type\": \"lab.requested\",\n  \"payload\": {\n    \"lab_request_id\": \"{{lab_request_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Event sama dikirim ulang -> idempoten",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('duplikat dikenali', () => pm.expect(j.data.duplicate).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "{{service_token}}"
+              }
+            ],
+            "url": "{{node_url}}/api/v1/integration/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{event_id}}\",\n  \"type\": \"lab.requested\",\n  \"payload\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Route Yii tidak ada -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = NOT_FOUND', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('NOT_FOUND'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{yii_url}}/api/tidak-ada"
+          }
+        },
+        {
+          "name": "Route Node tidak ada -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = NOT_FOUND', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('NOT_FOUND'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/tidak-ada"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_admin}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "demo_password",
+      "value": "password123"
+    }
+  ]
+}
