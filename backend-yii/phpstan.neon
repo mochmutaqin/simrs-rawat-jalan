@@ -1,0 +1,26 @@
+parameters:
+    level: 5
+
+    paths:
+        - commands
+        - components
+        - controllers
+        - migrations
+        - models
+        - services
+        - tests/Unit
+        - tests/Api
+        - tests/Support
+
+    excludePaths:
+        - tests/Support/_generated
+        - tests/Support/router.php
+
+    bootstrapFiles:
+        - tests/_bootstrap.php
+
+    dynamicConstantNames:
+        - YII_DEBUG
+        - YII_ENV
+
+    tmpDir: %currentWorkingDirectory%/runtime

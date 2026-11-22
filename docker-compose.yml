@@ -1,0 +1,27 @@
+# Jalankan: docker compose up -d
+# Database otomatis terisi skema + seed role/permission + user app_readonly.
+# Reset total: docker compose down -v && docker compose up -d
+services:
+  db:
+    image: postgres:16
+    container_name: simrs-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: simrs
+      READONLY_PASSWORD: readonly
+    ports:
+      - "5432:5432"
+    volumes:
+      - simrs-pgdata:/var/lib/postgresql/data
+      # hanya file instalasi; 002_constraint_tests.sql sengaja tidak di-mount
+      - ./database/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./docker/db-init/010_readonly_user.sh:/docker-entrypoint-initdb.d/010_readonly_user.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d simrs"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  simrs-pgdata:

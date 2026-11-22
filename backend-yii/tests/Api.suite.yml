@@ -1,0 +1,7 @@
+# Integration test HTTP: server PHP + database simrs_test sungguhan.
+# Database tes dikosongkan & di-seed ulang otomatis setiap kali suite dijalankan.
+actor: ApiTester
+bootstrap: _bootstrap.php
+modules:
+  enabled:
+    - Asserts

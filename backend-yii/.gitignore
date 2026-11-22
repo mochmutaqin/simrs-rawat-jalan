@@ -1,0 +1,27 @@
+# IDE
+.idea
+.vscode
+nbproject
+
+# OS
+Thumbs.db
+.DS_Store
+
+# composer
+/vendor
+vendor.zip
+composer.phar
+
+# konfigurasi lokal (rahasia)
+.env
+
+# runtime
+/runtime/*
+!/runtime/.gitignore
+/web/assets/*
+!/web/assets/.gitignore
+
+# tes
+tests/Support/output/*
+!tests/Support/output/.gitignore
+tests/Support/_generated

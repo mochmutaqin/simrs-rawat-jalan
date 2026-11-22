@@ -1,0 +1,5 @@
+# Unit test murni (tanpa database).
+actor: UnitTester
+modules:
+  enabled:
+    - Asserts
