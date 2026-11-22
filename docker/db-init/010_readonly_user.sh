@@ -1,4 +1,5 @@
 #!/bin/bash
+# Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 # Dijalankan otomatis oleh image postgres setelah 001_schema.sql (urut abjad).
 # Membuat user read-only untuk service Node.js.
 set -e

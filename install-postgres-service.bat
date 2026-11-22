@@ -1,4 +1,5 @@
 @echo off
+REM Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 setlocal EnableExtensions
 REM ==================================================================
 REM  Membuat database server PostgreSQL 17 + Windows service

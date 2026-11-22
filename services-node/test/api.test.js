@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 'use strict';
 // Tes integrasi: Postgres nyata (skema 001_schema.sql sudah terpasang) + Yii palsu (mock HTTP).
 // Env: TEST_DB_ADMIN_URL (superuser, untuk seed), DB_* untuk koneksi app_readonly.
@@ -252,6 +259,109 @@ test('dashboard: tanpa filter -> default 30 hari terakhir', async () => {
   assert.equal(r.status, 200);
   assert.equal(r.json.meta.to, today);
   assert.equal(r.json.data.total_visits, 3);
+});
+
+// ---------------- laporan ----------------
+test('kolom tanggal dikirim sebagai string YYYY-MM-DD (tidak bergeser di zona WIB)', async () => {
+  const rev = await api('GET', `/api/v1/dashboard/revenue?from=${today}&to=${today}`, { tok: T.report });
+  const det = await api('GET', `/api/v1/dashboard/details/visits?from=${today}&to=${today}`, { tok: T.report });
+  assert.equal(rev.json.data[0].date, today);
+  assert.equal(det.json.data[0].visit_date, today);
+});
+
+test('laporan pasien: ringkasan, basis periode, filter, dan pencarian', async () => {
+  const q = `from=${today}&to=${today}`;
+  const all = await api('GET', `/api/v1/reports/patients?${q}`, { tok: T.report });
+  assert.equal(all.status, 200);
+  const s = all.json.data.summary;
+  assert.deepEqual([s.total_patients, s.male, s.female, s.age_adult, s.total_visits], [4, 2, 2, 4, 3]);
+  assert.equal(all.json.meta.total, 4);
+  const ani = all.json.data.rows.find((r) => r.name === 'Ani');
+  assert.deepEqual([ani.birth_date, ani.visits_in_period, ani.last_visit, ani.registered_at], ['1990-01-01', 1, today, today]);
+
+  const visited = await api('GET', `/api/v1/reports/patients?${q}&basis=visited`, { tok: T.report });
+  assert.deepEqual(visited.json.data.rows.map((r) => r.name), ['Ani', 'Budi', 'Citra']);   // kunjungan Dedi batal
+  const male = await api('GET', `/api/v1/reports/patients?${q}&gender=L`, { tok: T.report });
+  assert.equal(male.json.meta.total, 2);
+  const byName = await api('GET', `/api/v1/reports/patients?${q}&q=bud`, { tok: T.report });
+  const byNik = await api('GET', `/api/v1/reports/patients?${q}&q=3273010101900004`, { tok: T.report });
+  assert.deepEqual([byName.json.data.rows[0].name, byNik.json.data.rows[0].name], ['Budi', 'Dedi']);
+  const paged = await api('GET', `/api/v1/reports/patients?${q}&limit=3&page=2`, { tok: T.report });
+  assert.deepEqual([paged.json.data.rows.length, paged.json.meta.total_pages], [1, 2]);
+});
+
+test('laporan stok obat: stok awal/akhir dari buku stok, status, dan nilai stok', async () => {
+  await admin.query(`
+    INSERT INTO medicines (code,name,unit,stock,min_stock,price) VALUES
+      ('AMX','Amoxicillin','kapsul',25,30,5000),('CTM','Chlorpheniramine','tablet',0,10,500);
+    INSERT INTO stock_movements (medicine_id,movement_type,quantity,stock_after) VALUES (2,'in',20,25);`);
+  const r = await api('GET', `/api/v1/reports/medicine-stock?from=${today}&to=${today}`, { tok: T.report });
+  assert.equal(r.status, 200);
+  const rows = r.json.data.rows;
+  assert.deepEqual(rows.map((x) => [x.code, x.status]), [['CTM', 'out'], ['AMX', 'low'], ['PCT', 'ok']]);   // yang perlu tindakan di atas
+  const pct = rows.find((x) => x.code === 'PCT');
+  assert.deepEqual([pct.stock_start, pct.qty_out, pct.stock_end, pct.stock_value], [100, 10, 90, 90000]);
+  const amx = rows.find((x) => x.code === 'AMX');
+  assert.deepEqual([amx.stock_start, amx.qty_in, amx.stock_end], [5, 20, 25]);
+  const s = r.json.data.summary;
+  assert.deepEqual([s.total_items, s.total_units, s.stock_value, s.status_ok, s.status_low, s.status_out, s.total_in, s.total_out],
+    [3, 115, 215000, 1, 1, 1, 20, 10]);
+  const low = await api('GET', `/api/v1/reports/medicine-stock?from=${today}&to=${today}&status=low`, { tok: T.report });
+  assert.deepEqual(low.json.data.rows.map((x) => x.code), ['AMX']);
+});
+
+test('laporan resep: jumlah per status, per dokter, obat terbanyak, dan filter', async () => {
+  await admin.query(`
+    INSERT INTO prescriptions (visit_id,doctor_id,status,dispensed_at) VALUES
+      (1,1,'dispensed',now()),(2,1,'pending',NULL),(3,1,'cancelled',NULL);
+    INSERT INTO prescription_items (prescription_id,medicine_id,dose,frequency,quantity,unit_price,voided_at) VALUES
+      (1,1,'500 mg','3x1',10,1000,NULL),
+      (2,1,'500 mg','3x1',5,1000,NULL),(2,2,'500 mg','3x1',3,5000,NULL),(2,3,'4 mg','2x1',6,500,now()),
+      (3,1,'500 mg','3x1',2,1000,NULL);`);
+  const q = `from=${today}&to=${today}`;
+  const r = await api('GET', `/api/v1/reports/prescriptions?${q}`, { tok: T.report });
+  assert.equal(r.status, 200);
+  const s = r.json.data.summary;
+  assert.deepEqual([s.total_prescriptions, s.pending, s.dispensed, s.cancelled, s.total_qty, s.dispensed_amount], [3, 1, 1, 1, 18, 10000]);
+  assert.deepEqual(s.by_doctor.map((d) => [d.poli, d.total, d.dispensed]), [['Poli Umum', 2, 1], ['Poli Gigi', 1, 0]]);
+  // item yang di-void dan resep yang dibatalkan tidak dihitung
+  assert.deepEqual(s.top_medicines.map((m) => [m.code, m.total_qty, m.prescriptions]), [['PCT', 15, 2], ['AMX', 3, 1]]);
+  const budi = r.json.data.rows.find((x) => x.patient_name === 'Budi');
+  assert.deepEqual([budi.item_count, budi.total_qty, budi.total_amount], [2, 8, 20000]);
+  const gigi = await api('GET', `/api/v1/reports/prescriptions?${q}&poli_id=2`, { tok: T.report });
+  const pending = await api('GET', `/api/v1/reports/prescriptions?${q}&status=pending`, { tok: T.report });
+  assert.deepEqual([gigi.json.meta.total, pending.json.meta.total], [1, 1]);
+});
+
+test('laporan: ekspor CSV untuk Excel (BOM, titik koma, kutip bila perlu)', async () => {
+  await admin.query(`UPDATE patients SET address = 'Jl. Merdeka; No. "5"' WHERE name = 'Ani'`);
+  const res = await fetch(`${base}/api/v1/reports/patients?from=${today}&to=${today}&format=csv`, { headers: { Authorization: `Bearer ${T.report}` } });
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type'), /^text\/csv/);
+  assert.match(res.headers.get('content-disposition'), new RegExp(`laporan-pasien_${today}_${today}\\.csv`));
+  const buf = Buffer.from(await res.arrayBuffer());
+  assert.deepEqual([...buf.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
+  const lines = buf.toString('utf8').slice(1).trim().split('\r\n');
+  assert.equal(lines.length, 5);                                          // header + 4 pasien
+  assert.ok(lines[0].startsWith('No. RM;Nama;NIK;Jenis kelamin'));
+  const aniLine = lines.find((l) => l.includes(';Ani;'));
+  assert.ok(aniLine.includes(';Perempuan;1990-01-01;'));
+  assert.ok(aniLine.includes('"Jl. Merdeka; No. ""5"""'));
+  const rx = await fetch(`${base}/api/v1/reports/prescriptions?from=${today}&to=${today}&format=csv`, { headers: { Authorization: `Bearer ${T.report}` } });
+  assert.match(await rx.text(), /;Diserahkan;/);
+});
+
+test('laporan: hak akses dan validasi query', async () => {
+  const pharmacy = token(['medicine.manage']);
+  const stock = await api('GET', '/api/v1/reports/medicine-stock', { tok: pharmacy });
+  const patients = await api('GET', '/api/v1/reports/patients', { tok: pharmacy });
+  const none = await api('GET', '/api/v1/reports/prescriptions', { tok: T.none });
+  assert.deepEqual([stock.status, patients.status, none.status], [200, 403, 403]);
+  const bigLimit = await api('GET', '/api/v1/reports/patients?limit=5000', { tok: T.report });
+  const badStatus = await api('GET', '/api/v1/reports/medicine-stock?status=kosong', { tok: T.report });
+  const badFormat = await api('GET', '/api/v1/reports/prescriptions?format=xls', { tok: T.report });
+  assert.deepEqual([bigLimit.status, badStatus.status, badFormat.status], [400, 400, 400]);
+  assert.equal(badStatus.json.error.details[0].field, 'status');
 });
 
 // ---------------- pemisahan tanggung jawab ----------------

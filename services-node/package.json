@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "SIMRS Rawat Jalan - Node.js services (lab/integrasi + dashboard read-only)",
+  "author": "Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

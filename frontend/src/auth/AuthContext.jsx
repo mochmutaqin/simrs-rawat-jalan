@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { setUnauthorizedHandler, tokenStore, yii } from '../api/client';
 

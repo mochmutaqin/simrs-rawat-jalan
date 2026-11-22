@@ -1,4 +1,5 @@
 @echo off
+REM Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 REM Menyalakan semua service SIMRS dalam jendela terpisah. Tutup jendelanya untuk menghentikan service.
 set "ROOT=%~dp0"
 

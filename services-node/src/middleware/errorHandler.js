@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 'use strict';
 const { AppError } = require('../lib/errors');
 const { fail } = require('../lib/response');

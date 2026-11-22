@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Megaphone, RefreshCw } from 'lucide-react';
@@ -35,7 +42,7 @@ export default function DoctorQueue() {
         actions={<><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Tanggal" /><Button variant="secondary" icon={RefreshCw} onClick={q.reload}>Muat ulang</Button></>} />
       <ErrorBox error={q.error} onRetry={q.reload} />
       {q.loading && !q.data ? <Spinner /> : (
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
           <section className="panel flex flex-col items-center justify-center gap-4 px-6 py-10 text-center">
             {active.length > 0 ? (<>
               <p className="font-semibold text-ink-soft">Sedang diperiksa</p>
@@ -59,9 +66,9 @@ export default function DoctorQueue() {
             {rows.length === 0 ? <Empty title="Belum ada pasien" /> : (
               <ul className="divide-y divide-line">
                 {rows.map((v) => (
-                  <li key={v.id} className="flex items-center gap-4 px-4 py-3">
+                  <li key={v.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
                     <QueueTicket code={v.queue_code} tone={{ waiting: 'wait', in_exam: 'exam' }[v.status] || 'done'} />
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-[9rem] flex-1">
                       <p className="truncate font-semibold">{v.patient.name}</p>
                       <p className="num text-[0.85rem] text-ink-soft">{v.patient.medical_record_no} · {umur(v.patient.birth_date)}{user.role === 'admin' && ` · ${v.doctor_name}`}</p>
                     </div>

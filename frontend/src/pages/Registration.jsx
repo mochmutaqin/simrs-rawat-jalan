@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, RefreshCw, UserPlus, XCircle } from 'lucide-react';
@@ -151,7 +158,7 @@ function RegisterVisitModal({ onClose, onDone }) {
             {schedules.loading ? <Spinner /> : !schedules.data?.length ? (
               <p className="rounded-md bg-wall px-4 py-3 text-ink-soft">Tidak ada dokter praktik pada tanggal ini.</p>
             ) : (
-              <div className="grid gap-2 sm:grid-cols-2" role="radiogroup">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup">
                 {schedules.data.map((s) => {
                   const full = s.remaining <= 0;
                   const active = scheduleId === s.schedule_id;

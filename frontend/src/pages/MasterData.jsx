@@ -1,9 +1,16 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Pencil, Plus, Power } from 'lucide-react';
 import { yii } from '../api/client';
 import { PageHeader } from '../components/Layout';
-import { Badge, Button, Empty, ErrorBox, Input, Modal, Pagination, Select, Spinner, useToast } from '../components/ui';
+import { Badge, Button, Empty, ErrorBox, Input, Modal, PasswordInput, Pagination, Select, Spinner, useToast } from '../components/ui';
 import { rupiah } from '../lib/format';
 import { useApi } from '../lib/useApi';
 
@@ -145,20 +152,20 @@ function CrudForm({ resource, cfg, row, onClose, onSaved }) {
   };
 
   const input = ([k, label, type, opts]) => {
-    const common = { key: k, label, value: form[k] ?? '', error: errors[k] ?? (k === 'role' ? errors.role_id : undefined), onChange: (e) => setForm({ ...form, [k]: e.target.value }) };
+    const common = { label, value: form[k] ?? '', error: errors[k] ?? (k === 'role' ? errors.role_id : undefined), onChange: (e) => setForm({ ...form, [k]: e.target.value }) };
     if (type === 'select') return <Select {...common}><option value="">Pilih</option>{Object.entries(opts).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>;
     if (type === 'doctor') return <Select {...common}><option value="">Pilih dokter</option>{doctors.data?.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</Select>;
     if (type === 'poli') return <Select {...common}><option value="">Pilih poli</option>{polis.data?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Select>;
     if (type === 'user') return <Select {...common} hint="Hubungkan agar dokter bisa login dan melihat pasiennya"><option value="">Tidak dihubungkan</option>{users.data?.map((u) => <option key={u.id} value={u.id}>{u.username} ({u.full_name})</option>)}</Select>;
     if (type === 'role') return <Select {...common}><option value="">Pilih role</option>{roles.data?.map((r) => <option key={r.code} value={r.code}>{r.name}</option>)}</Select>;
-    if (type === 'password') return <Input {...common} type="password" autoComplete="new-password" hint={isNew ? 'Minimal 8 karakter' : 'Kosongkan bila tidak diubah'} />;
+    if (type === 'password') return <PasswordInput {...common} autoComplete="new-password" hint={isNew ? 'Minimal 8 karakter' : 'Kosongkan bila tidak diubah'} />;
     return <Input {...common} type={type} step={type === 'number' ? 'any' : undefined} />;
   };
 
   return (
     <Modal open title={isNew ? `Tambah ${cfg.singular}` : `Ubah ${cfg.singular}`} onClose={onClose}
       footer={<><Button variant="secondary" onClick={onClose}>Batal</Button><Button busy={busy} onClick={save}>Simpan</Button></>}>
-      <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); save(); }}>
+      <form className="grid grid-cols-1 gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); save(); }}>
         {cfg.fields.map((f) => <div key={f[0]} className={['name', 'full_name'].includes(f[0]) ? 'sm:col-span-2' : ''}>{input(f)}</div>)}
         <button type="submit" hidden />
       </form>

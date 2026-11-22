@@ -2,6 +2,8 @@
 
 Base URL: `http://localhost:3001`
 
+Kolom bertipe tanggal (`visit_date`, `birth_date`, `date`, dst.) dikirim sebagai string `YYYY-MM-DD` apa adanya, tidak dikonversi ke zona waktu.
+
 ## Konvensi
 
 **Autentikasi**
@@ -136,6 +138,61 @@ Rincian (drill-down) kunjungan, berpaginasi.
 | `page`, `limit` | paginasi |
 
 Setiap baris: kunjungan, pasien, poli, dokter, nomor invoice, status bayar, total, terbayar.
+
+---
+
+## Laporan
+
+Semua laporan read-only, menerima `from` dan `to` (default 30 hari terakhir), dan mengembalikan:
+
+```json
+{ "success": true,
+  "data": { "summary": { }, "rows": [ ] },
+  "meta": { "from": "2026-10-24", "to": "2026-11-22", "page": 1, "limit": 20, "total": 6, "total_pages": 1 } }
+```
+
+| Query umum | Keterangan |
+|---|---|
+| `page`, `limit` | paginasi; `limit` maksimal **1000** (untuk cetak satu dokumen) |
+| `format` | `json` (default) atau `csv`: seluruh baris (maks. 10.000) sebagai file CSV untuk Excel, pemisah `;`, BOM UTF-8, header `Content-Disposition: attachment; filename="laporan-…_{from}_{to}.csv"` |
+
+### `GET /api/v1/reports/patients`  · `report.view`
+Laporan data pasien.
+
+| Query | Keterangan |
+|---|---|
+| `basis` | `registered` (default): pasien yang terdaftar pada periode; `visited`: pasien yang berkunjung pada periode |
+| `gender` | `L \| P`, opsional |
+| `q` | cari nama, No. RM, atau NIK |
+
+`summary`: `total_patients, male, female, age_child (<18), age_adult (18–59), age_elderly (60+), total_visits`.
+Setiap baris: `medical_record_no, nik, name, gender, birth_date, age, phone, address, registered_at, visits_in_period, last_visit`.
+Kunjungan yang dibatalkan tidak dihitung.
+
+### `GET /api/v1/reports/medicine-stock`  · `report.view` atau `medicine.manage`
+Laporan stok obat (obat aktif). Mutasi diambil dari buku stok (`stock_movements`).
+
+| Query | Keterangan |
+|---|---|
+| `status` | `ok` (aman), `low` (stok ≤ stok minimum), `out` (habis), opsional |
+| `q` | cari kode atau nama obat |
+
+Setiap baris: `stock_start` (stok awal periode), `qty_in`, `qty_out`, `qty_adjust` (penyesuaian + retur), `stock_end` (stok akhir periode),
+`stock` (stok saat ini), `min_stock`, `status`, `price`, `stock_value`. Stok awal/akhir dihitung mundur dari stok saat ini dikurangi mutasi
+sesudah tanggal tersebut. Baris diurutkan yang perlu tindakan dulu: habis, menipis, aman.
+`summary`: `total_items, total_units, stock_value, status_ok, status_low, status_out, total_in, total_out`.
+
+### `GET /api/v1/reports/prescriptions`  · `report.view`
+Laporan jumlah resep berdasarkan tanggal resep dibuat.
+
+| Query | Keterangan |
+|---|---|
+| `status` | `pending \| dispensed \| cancelled`, opsional |
+| `poli_id`, `doctor_id` | opsional |
+
+Setiap baris: resep, pasien, poli, dokter, `item_count`, `total_qty`, `total_amount`, `status`, `dispensed_at`. Item resep yang di-void tidak dihitung.
+`summary`: `total_prescriptions, pending, dispensed, cancelled, total_qty` (tanpa resep batal), `dispensed_amount`,
+`by_doctor` (jumlah resep per dokter/poli), `top_medicines` (10 obat paling banyak diresepkan).
 
 ---
 

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 declare(strict_types=1);
 
 // Entry point untuk tes API (database simrs_test). Hanya dari localhost.

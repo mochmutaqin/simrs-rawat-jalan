@@ -1,6 +1,13 @@
 {
     "name": "yiisoft/yii2-app-basic",
     "description": "SIMRS Rawat Jalan - backend utama (Yii2): business logic, transaksi, auth & RBAC",
+    "authors": [
+        {
+            "name": "Mochamad Mutaqin Kurniawan",
+            "email": "mochmutaqin@gmail.com",
+            "homepage": "https://github.com/mochmutaqin"
+        }
+    ],
     "keywords": [
         "simrs",
         "yii2",

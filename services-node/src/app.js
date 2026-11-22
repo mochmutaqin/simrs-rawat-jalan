@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 'use strict';
 const express = require('express');
 const db = require('./db');
@@ -23,6 +30,7 @@ v1.use(authenticate);                                      // sisanya: JWT user
 v1.get('/me', (req, res) => ok(res, req.user));
 v1.use('/lab', require('./routes/lab'));
 v1.use('/dashboard', require('./routes/dashboard'));
+v1.use('/reports', require('./routes/reports'));
 app.use('/api/v1', v1);
 
 app.use(notFoundHandler);

@@ -2,7 +2,10 @@
 
 Real case test Senior Programmer, PT Inova Medika Solusindo. Sistem pelayanan rawat jalan dari pendaftaran
 sampai pembayaran: antrean, rekam medis elektronik, tindakan, resep & farmasi, laboratorium, billing,
-dashboard, serta hak akses per role.
+dashboard, laporan (data pasien, stok obat, jumlah resep) dengan cetak/PDF dan ekspor CSV, serta hak akses per role.
+Tampilan responsif: di HP dan tablet menu berubah menjadi panel geser.
+
+Dibuat oleh **Mochamad Mutaqin Kurniawan** ([github.com/mochmutaqin](https://github.com/mochmutaqin), mochmutaqin@gmail.com).
 
 | Komponen | Teknologi | Folder |
 |---|---|---|
@@ -68,25 +71,25 @@ Password semua akun: `password123`
 | `pendaftaran` | Petugas pendaftaran | cari/daftar pasien, ambil nomor antrean, batalkan kunjungan |
 | `dokter.umum` (juga `dokter.gigi`, `dokter.anak`) | Dokter | panggil pasien, anamnesis, vital sign, diagnosis, tindakan, resep, permintaan lab |
 | `lab` | Petugas laboratorium | worklist & input hasil (lewat services-node) |
-| `farmasi` | Petugas farmasi | proses resep, serahkan obat, stok & kartu stok |
-| `kasir` | Kasir | tagihan, bayar bertahap tunai/QRIS, refund, cetak invoice & bukti bayar, dashboard |
+| `farmasi` | Petugas farmasi | proses resep, serahkan obat, stok & kartu stok, laporan stok obat |
+| `kasir` | Kasir | tagihan, bayar bertahap tunai/QRIS, refund, cetak invoice & bukti bayar, dashboard & laporan |
 | `admin` | Administrator | semua fitur + master data & pengguna |
 
 Urutan demo: daftar pasien (pendaftaran) → periksa & resep & lab (dokter) → isi hasil (lab) → serahkan obat
-(farmasi) → bayar & cetak (kasir) → dashboard (admin/kasir).
+(farmasi) → bayar & cetak (kasir) → dashboard & laporan (admin/kasir).
 
 ## Pengujian
 
 | Bagian | Perintah | Hasil terakhir |
 |---|---|---|
 | Backend Yii: unit + integrasi HTTP (termasuk uji konkurensi paralel D1–D3, D4, D5) | `cd backend-yii && vendor/bin/codecept run` | 43 tes, 312 assertion, lolos |
-| services-node: integrasi (Postgres nyata + Yii palsu) | `cd services-node && npm test` | 19 tes, lolos |
+| services-node: integrasi (Postgres nyata + Yii palsu) | `cd services-node && npm test` | 25 tes, lolos |
 | Constraint database | `psql -d simrs -f database/002_constraint_tests.sql` | semua pelanggaran ditolak |
 | Analisis statis Yii | `cd backend-yii && vendor/bin/phpstan analyse` | level 5, 0 error |
-| End-to-end browser (semua role) + screenshot | `cd frontend && npm run e2e` | alur lengkap tanpa error console/HTTP 5xx |
-| Postman collection (Yii + Node, 11 folder) | `npx newman run postman/SIMRS.postman_collection.json -e postman/SIMRS-lokal.postman_environment.json` | 102 request, 286/286 assertion lolos ([laporan](postman/reports/ringkasan-pengujian.html)) |
+| End-to-end browser (semua role, laporan, tampilan HP 390 px) + screenshot | `cd frontend && npm run e2e` | alur lengkap tanpa error console/HTTP 5xx |
+| Postman collection (Yii + Node, 11 folder) | `npx newman run postman/SIMRS.postman_collection.json -e postman/SIMRS-lokal.postman_environment.json` | 109 request, 309/309 assertion lolos ([laporan](postman/reports/ringkasan-pengujian.html)) |
 
-Daftar 50 test case per fitur beserta test yang membuktikannya: [`docs/02_test_case.md`](docs/02_test_case.md).
+Daftar 57 test case per fitur beserta test yang membuktikannya: [`docs/02_test_case.md`](docs/02_test_case.md).
 
 ## Tampilan
 
@@ -94,5 +97,6 @@ Daftar 50 test case per fitur beserta test yang membuktikannya: [`docs/02_test_c
 |---|---|
 | ![Antrean pendaftaran](docs/screenshots/04-pendaftaran-antrean.png) | ![Pemeriksaan dokter](docs/screenshots/06-dokter-pemeriksaan.png) |
 | ![Tagihan lunas](docs/screenshots/13-kasir-lunas.png) | ![Dashboard](docs/screenshots/16-dashboard.png) |
+| ![Laporan resep](docs/screenshots/19-laporan-resep.png) | ![Menu di HP](docs/screenshots/20-hp-menu.png) |
 
-Semua screenshot (18 langkah alur pelayanan termasuk invoice & bukti pembayaran cetak, plus hasil Postman/Newman): [`docs/screenshots/`](docs/screenshots/).
+Semua screenshot (alur pelayanan termasuk invoice & bukti pembayaran cetak, laporan, tampilan HP, dan hasil Postman/Newman): [`docs/screenshots/`](docs/screenshots/).

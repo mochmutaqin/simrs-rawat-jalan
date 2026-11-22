@@ -31,7 +31,7 @@ Build produksi: `npm run build` → folder `dist/`, sajikan di web server yang j
 src/
 ├── api/client.js          klien Yii & Node, format error seragam, Idempotency-Key
 ├── auth/AuthContext.jsx   login JWT, can(permission), logout otomatis saat 401
-├── components/            Layout (menu per unit + RBAC), ui (tombol, form, modal, tiket antrean, toast), form & pencarian pasien
+├── components/            Layout (menu per unit + RBAC, panel geser di HP), ui (tombol, form, modal, tiket antrean, toast), filter periode, form & pencarian pasien
 ├── lib/                   format rupiah/tanggal (Asia/Jakarta), hook data, cetak dokumen, daftar ICD-10
 └── pages/
     ├── Registration.jsx   antrean per tanggal/poli/status, pendaftaran (pasien lama/baru, cek duplikat, pilih jadwal)
@@ -42,6 +42,7 @@ src/
     ├── Lab.jsx            worklist & input hasil (lewat services-node)
     ├── Billing.jsx        tagihan, bayar bertahap tunai/non-tunai, refund, cetak invoice & bukti bayar
     ├── Dashboard.jsx      ringkasan, pendapatan, kunjungan per poli, tindakan, obat, status bayar, rincian (services-node)
+    ├── Reports.jsx        laporan data pasien, stok obat, jumlah resep: filter, ringkasan, cetak/PDF, unduh CSV (services-node)
     └── MasterData.jsx     CRUD poli, tenaga medis, jadwal, tindakan, tes lab, pengguna
 ```
 
@@ -55,11 +56,14 @@ src/
 - **Idempotency-Key dibuat sekali saat form bayar / input hasil lab dibuka**, dipakai ulang saat retry, sehingga
   klik ulang setelah gangguan jaringan tidak mencatat transaksi ganda.
 - Halaman dokter, farmasi, lab, dan antrean memuat ulang otomatis tiap 20 detik.
+- **Responsif**: di bawah 1024 px sidebar menjadi panel geser (tombol menu di kiri atas, tutup dengan X, klik di luar,
+  atau Escape). Tabel lebar bisa digeser ke samping di dalam panelnya, jadi halaman tidak ikut melebar. Diuji di
+  lebar 320, 360, 390, 414, 768, 1024, dan 1366 px.
 
 ## Uji end-to-end & screenshot
 
 `scripts/e2e-flow.mjs` menjalankan alur lengkap di browser (pendaftaran → dokter → lab → farmasi → kasir →
-cetak → dashboard → cek RBAC) dan menyimpan screenshot ke `../docs/screenshots`.
+cetak → dashboard → cek RBAC → laporan + unduh CSV → tampilan HP 390 px) dan menyimpan screenshot ke `../docs/screenshots`.
 
 ```bash
 npm i -D playwright && npx playwright install chromium

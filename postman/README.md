@@ -2,13 +2,13 @@
 
 | File | Isi |
 |---|---|
-| `SIMRS.postman_collection.json` | 102 request (backend Yii + services-node) dalam 11 folder, 286 assertion |
+| `SIMRS.postman_collection.json` | 109 request (backend Yii + services-node) dalam 11 folder, 309 assertion |
 | `SIMRS-lokal.postman_environment.json` | `yii_url`, `node_url`, `service_token` untuk instalasi lokal |
 | `reports/ringkasan-pengujian.html` | ringkasan hasil run terakhir (bisa dibuka offline) |
 | `reports/newman-report.html` | laporan detail Newman htmlextra (butuh internet untuk tampilan) |
 | `reports/newman-junit.xml` | hasil dalam format JUnit (untuk CI) |
 
-Hasil run terakhir: **102 request, 286/286 assertion lolos**, diulang dua kali di atas data yang sama dan tetap lolos.
+Hasil run terakhir: **109 request, 309/309 assertion lolos**, diulang dua kali di atas data yang sama dan tetap lolos.
 
 ## Menjalankan
 

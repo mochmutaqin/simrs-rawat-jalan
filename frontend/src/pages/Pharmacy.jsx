@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useEffect, useState } from 'react';
 import { ClipboardCheck, PackagePlus, Pencil, Plus, RefreshCw, SlidersHorizontal, XCircle } from 'lucide-react';
 import { yii } from '../api/client';
@@ -26,7 +33,7 @@ export function PrescriptionQueue() {
       <Tabs value={status} onChange={(s) => { setStatus(s); setPage(1); }} tabs={[{ value: 'pending', label: 'Menunggu' }, { value: 'dispensed', label: 'Diserahkan' }, { value: 'cancelled', label: 'Batal' }]} />
       <div className="mt-4"><ErrorBox error={list.error} onRetry={list.reload} /></div>
       {list.loading && !list.data ? <Spinner /> : !list.data?.length ? <Empty title="Tidak ada resep">Resep dari dokter akan muncul di sini.</Empty> : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {list.data.map((rx) => (
             <article key={rx.id} className="panel">
               <header className="flex items-center gap-3 border-b border-line px-4 py-3">
@@ -153,7 +160,7 @@ function StockModal({ medicine, onClose, onDone }) {
     <Modal open title={`Mutasi stok ${medicine.name}`} onClose={onClose}
       footer={<><Button variant="secondary" onClick={onClose}>Batal</Button><Button busy={busy} icon={SlidersHorizontal} onClick={go}>Simpan mutasi</Button></>}>
       <p className="num mb-3 text-[0.92rem] text-ink-soft">Stok sekarang {num(medicine.stock)} {medicine.unit}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Select label="Jenis" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} error={errors.type}>
           <option value="in">Penerimaan barang</option><option value="adjustment">Penyesuaian (stok opname)</option>
         </Select>
@@ -204,7 +211,7 @@ function MedicineForm({ medicine, onClose, onDone }) {
   return (
     <Modal open title={isNew ? 'Obat baru' : `Ubah ${medicine.name}`} onClose={onClose}
       footer={<><Button variant="secondary" onClick={onClose}>Batal</Button><Button busy={busy} onClick={go}>Simpan</Button></>}>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input label="Kode" value={form.code} onChange={set('code')} error={errors.code} />
         <Input label="Satuan" placeholder="tablet, botol, kapsul" value={form.unit} onChange={set('unit')} error={errors.unit} />
         <Input label="Nama obat" value={form.name} onChange={set('name')} error={errors.name} className="sm:col-span-2" />

@@ -1,4 +1,5 @@
 -- User read-only untuk services-node (instalasi tanpa Docker).
+-- Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 -- Jalankan setelah skema terpasang:  psql -U postgres -d simrs -f database/003_readonly_user.sql
 -- Ganti password di bawah bila perlu, lalu samakan dengan DB_PASSWORD di services-node/.env
 DO $$

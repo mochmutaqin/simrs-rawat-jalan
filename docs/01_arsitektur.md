@@ -1,5 +1,7 @@
 # SIMRS Rawat Jalan – Dokumen Arsitektur (Fase 1)
 
+Penulis: Mochamad Mutaqin Kurniawan
+
 Stack: React.js · Yii2 · Node.js · PostgreSQL · Postman · Git
 
 ## 1. Diagram Arsitektur
@@ -8,12 +10,12 @@ Stack: React.js · Yii2 · Node.js · PostgreSQL · Postman · Git
 flowchart LR
     FE["React.js SPA"]
     YII["Yii2 – SIMRS API<br/>business logic + semua write transaksi"]
-    NODE["Node.js Services<br/>lab/integrasi + dashboard"]
+    NODE["Node.js Services<br/>lab/integrasi + dashboard + laporan"]
     DB[("PostgreSQL")]
     OUT[("outbox_events")]
 
     FE -- "REST + JWT (master, daftar, periksa,<br/>farmasi, billing, auth)" --> YII
-    FE -- "REST + JWT (lab, dashboard)" --> NODE
+    FE -- "REST + JWT (lab, dashboard, laporan)" --> NODE
     YII -- "read/write + transaksi" --> DB
     YII -- "tulis event (1 transaksi)" --> OUT
     OUT -. "worker + retry" .-> NODE
@@ -34,7 +36,7 @@ Prinsip: **satu pintu tulis**. Semua perubahan data bisnis lewat Yii, jadi atura
 | Farmasi & stok | Validasi stok, dispense atomik | – |
 | Billing & pembayaran | Hitung tagihan, idempotency, status bayar | – |
 | Lab | Buat permintaan, simpan hasil (endpoint internal) | REST API daftar permintaan, terima input hasil lalu teruskan ke Yii, terima event integrasi |
-| Dashboard | – | Agregasi read-only (query ke view/tabel) |
+| Dashboard & laporan | – | Agregasi read-only; laporan data pasien, stok obat, jumlah resep (JSON berpaginasi atau CSV) |
 | Outbox | Tulis event + worker pengirim | Consumer idempoten |
 
 Aturan agar tidak terjadi inkonsistensi data:
@@ -48,7 +50,7 @@ Aturan agar tidak terjadi inkonsistensi data:
 2. **Operasional:** React → Yii (`Authorization: Bearer <jwt>`) → PostgreSQL.
 3. **Permintaan lab:** Dokter buat permintaan di Yii → Yii menulis `lab_requests` + `outbox_events (lab.requested)` dalam satu transaksi → worker mengirim ke Node `POST /api/v1/integration/events`.
 4. **Hasil lab:** Petugas lab di React → Node `POST /api/v1/lab/items/{id}/result` → Node validasi request → Node memanggil Yii internal endpoint → Yii simpan + audit + sinkron tagihan.
-5. **Dashboard:** React → Node `GET /api/v1/dashboard/*` → Node query read-only ke PostgreSQL.
+5. **Dashboard & laporan:** React → Node `GET /api/v1/dashboard/*` dan `GET /api/v1/reports/*` → Node query read-only ke PostgreSQL. Laporan bisa dicetak/PDF dari browser atau diunduh sebagai CSV (`format=csv`).
 
 ## 4. Auth & RBAC
 
@@ -208,6 +210,6 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_readonly;
 |---|---|
 | Database + ERD + constraint skenario D | selesai |
 | Backend Yii2 (auth, RBAC, master data, alur pendaftaran → pembayaran, cetak invoice/struk) | selesai, 43 tes lolos, PHPStan level 5 bersih |
-| services-node (lab, dashboard, integrasi, CORS) | selesai, 19 tes lolos |
-| Frontend React (semua role, dashboard, master data) | selesai, uji end-to-end browser lolos, 18 screenshot di `docs/screenshots/` |
-| Postman collection | selesai, 102 request / 286 assertion lolos (`postman/`) |
+| services-node (lab, dashboard, laporan, integrasi, CORS) | selesai, 25 tes lolos |
+| Frontend React (semua role, dashboard, laporan, master data, responsif HP/tablet) | selesai, uji end-to-end browser lolos, 21 screenshot di `docs/screenshots/` |
+| Postman collection | selesai, 109 request / 309 assertion lolos (`postman/`) |

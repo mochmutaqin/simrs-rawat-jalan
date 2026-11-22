@@ -1,6 +1,6 @@
 # SIMRS – Node.js Services
 
-Backend pendukung SIMRS Rawat Jalan: **API laboratorium/integrasi** dan **API dashboard**.
+Backend pendukung SIMRS Rawat Jalan: **API laboratorium/integrasi**, **API dashboard**, dan **API laporan**.
 Business logic dan semua penulisan data tetap di Yii2. Node.js hanya **membaca** PostgreSQL
 (user `app_readonly`) dan **meneruskan** penulisan hasil lab ke endpoint internal Yii.
 
@@ -11,8 +11,9 @@ src/
 ├── app.js                 # rakit express: health, auth, routes, error handler
 ├── server.js              # start + graceful shutdown
 ├── config.js              # semua konfigurasi dari env
-├── db.js                  # pool pg (read-only, statement_timeout)
+├── db.js                  # pool pg (read-only, statement_timeout, date sebagai string)
 ├── lib/
+│   ├── csv.js             # ekspor CSV untuk Excel (BOM UTF-8, pemisah titik koma)
 │   ├── errors.js          # AppError + helper 400/401/403/404/503
 │   ├── response.js        # format response konsisten
 │   ├── schemas.js         # skema zod bersama (periode, paging, id)
@@ -24,8 +25,9 @@ src/
 └── routes/
     ├── lab.js             # /api/v1/lab/*
     ├── dashboard.js       # /api/v1/dashboard/*
+    ├── reports.js         # /api/v1/reports/* (pasien, stok obat, resep; JSON atau CSV)
     └── integration.js     # /api/v1/integration/events
-test/api.test.js           # 18 tes integrasi (Postgres nyata + Yii palsu)
+test/api.test.js           # 25 tes integrasi (Postgres nyata + Yii palsu)
 ```
 
 ## Menjalankan
@@ -57,6 +59,8 @@ npm test
 Yang diuji: JWT (tidak ada / rusak / kedaluwarsa), RBAC 403, validasi 400 per field, daftar/detail/404 lab,
 penerusan hasil lab ke Yii (header token + idempotency key), **retry saat Yii error sesaat dengan kunci yang sama**,
 **503 saat Yii mati**, penolakan 4xx tanpa retry, angka dashboard vs data seed, filter & paginasi, validasi periode,
+angka laporan pasien/stok/resep (stok awal & akhir dari buku stok, item void tidak dihitung), ekspor CSV, tanggal tidak
+bergeser di zona WIB,
 **Node tidak bisa INSERT/UPDATE**, dan event integrasi idempoten.
 
 Dokumentasi endpoint: [`docs/API.md`](docs/API.md).

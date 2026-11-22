@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "8e1072fc-df83-5d2b-8cbe-25bfc186b82d",
     "name": "SIMRS Rawat Jalan API",
-    "description": "Pengujian API backend Yii2 dan services-node.\n\nJalankan berurutan dengan Collection Runner (folder 00 → 10): login semua role, master data, pendaftaran, pemeriksaan, lab (lewat Node), farmasi, billing, koreksi setelah lunas, dashboard, integrasi.\nID dan token disimpan otomatis ke collection variable. Data dibuat unik setiap kali dijalankan, jadi collection bisa diulang tanpa reset database.\n\nFormat response kedua backend: sukses {success:true,data,meta} / gagal {success:false,error:{code,message,details}}.",
+    "description": "Pengujian API backend Yii2 dan services-node.\n\nJalankan berurutan dengan Collection Runner (folder 00 → 10): login semua role, master data, pendaftaran, pemeriksaan, lab (lewat Node), farmasi, billing, koreksi setelah lunas, dashboard & laporan, integrasi.\nID dan token disimpan otomatis ke collection variable. Data dibuat unik setiap kali dijalankan, jadi collection bisa diulang tanpa reset database.\n\nFormat response kedua backend: sukses {success:true,data,meta} / gagal {success:false,error:{code,message,details}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -3316,6 +3316,182 @@
             "method": "GET",
             "header": [],
             "url": "{{node_url}}/api/v1/dashboard/details/visits?from={{today}}&to={{today}}&payment_status=paid&limit=50"
+          }
+        },
+        {
+          "name": "Laporan data pasien",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('pasien Postman ada di laporan', () => pm.expect(j.data.rows.map(r => r.id)).to.include(pm.collectionVariables.get('patient_id')));",
+                  "pm.test('ringkasan per jenis kelamin & umur', () => pm.expect(j.data.summary).to.include.keys('total_patients','male','female','age_child','age_adult','age_elderly'));",
+                  "pm.test('tanggal lahir berformat YYYY-MM-DD', () => pm.expect(j.data.rows[0].birth_date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/patients?from={{today}}&to={{today}}&q={{patient_name}}"
+          }
+        },
+        {
+          "name": "Laporan stok obat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "const pct = j.data.rows.find(r => r.code === 'PCT500');",
+                  "pm.test('mutasi periode tercatat (masuk 50, ada yang keluar)', () => { pm.expect(pct.qty_in).to.be.at.least(50); pm.expect(pct.qty_out).to.be.above(0); });",
+                  "pm.test('stok akhir periode = stok saat ini (sampai hari ini)', () => pm.expect(pct.stock_end).to.eql(pct.stock));",
+                  "pm.test('status stok valid', () => pm.expect(['ok','low','out']).to.include(pct.status));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/medicine-stock?from={{today}}&to={{today}}&q=PCT500"
+          }
+        },
+        {
+          "name": "Laporan resep",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));",
+                  "pm.test('resep Postman (diserahkan) ada', () => pm.expect(j.data.rows.map(r => r.id)).to.include(pm.collectionVariables.get('prescription_id')));",
+                  "pm.test('rincian per dokter & obat terbanyak', () => { pm.expect(j.data.summary.by_doctor.length).to.be.above(0); pm.expect(j.data.summary.top_medicines.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/prescriptions?from={{today}}&to={{today}}&status=dispensed&limit=100"
+          }
+        },
+        {
+          "name": "Laporan pasien CSV (Excel)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('file CSV', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv'); pm.expect(pm.response.headers.get('Content-Disposition')).to.include('laporan-pasien_'); });",
+                  "pm.test('header kolom & data pasien', () => { const t = pm.response.text(); pm.expect(t).to.include('No. RM;Nama;NIK'); pm.expect(t).to.include(pm.collectionVariables.get('patient_name')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/patients?from={{today}}&to={{today}}&q={{patient_name}}&format=csv"
+          }
+        },
+        {
+          "name": "Farmasi buka laporan stok -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('format sukses konsisten', () => pm.expect(j.success).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/medicine-stock?from={{today}}&to={{today}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_pharmacy}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Farmasi buka laporan pasien -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = FORBIDDEN', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('FORBIDDEN'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/patients?from={{today}}&to={{today}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_pharmacy}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Limit laporan lebih dari 1000 -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const j = pm.response.json();",
+                  "pm.test('error.code = BAD_REQUEST', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.code).to.eql('BAD_REQUEST'); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{node_url}}/api/v1/reports/patients?from={{today}}&to={{today}}&limit=5000"
           }
         },
         {

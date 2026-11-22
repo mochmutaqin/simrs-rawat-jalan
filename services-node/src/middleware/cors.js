@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 'use strict';
 const config = require('../config');
 
@@ -12,6 +19,7 @@ function cors(req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, Idempotency-Key, X-Service-Token');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Max-Age', '86400');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, X-Total-Rows, X-Truncated');
   }
   if (req.method === 'OPTIONS') return res.status(204).end();
   next();

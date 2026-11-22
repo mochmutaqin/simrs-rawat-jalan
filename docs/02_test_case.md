@@ -1,5 +1,7 @@
 # Test Case Fitur Utama
 
+Penulis: Mochamad Mutaqin Kurniawan
+
 Semua test case di bawah dijalankan otomatis, tidak dicek manual satu per satu. Kolom **Bukti** menunjuk test yang membuktikannya:
 
 - **Yii**: Codeception di `backend-yii/tests/` (nama class `::` nama method)
@@ -12,9 +14,9 @@ Semua test case di bawah dijalankan otomatis, tidak dicek manual satu per satu. 
 | Bagian | Perintah | Jumlah | Hasil |
 |---|---|---|---|
 | Backend Yii (unit + integrasi HTTP) | `cd backend-yii && vendor/bin/codecept run` | 43 test, 312 assertion | Lulus |
-| services-node | `cd services-node && npm test` | 19 test | Lulus |
-| Postman / Newman | `npx newman run postman/SIMRS.postman_collection.json -e postman/SIMRS-lokal.postman_environment.json` | 102 request, 286 assertion | Lulus ([laporan](../postman/reports/ringkasan-pengujian.html)) |
-| E2E browser | `cd frontend && npm run e2e` | alur lengkap semua role | Lulus, tanpa error console / HTTP 5xx |
+| services-node | `cd services-node && npm test` | 25 test | Lulus |
+| Postman / Newman | `npx newman run postman/SIMRS.postman_collection.json -e postman/SIMRS-lokal.postman_environment.json` | 109 request, 309 assertion | Lulus ([laporan](../postman/reports/ringkasan-pengujian.html)) |
+| E2E browser | `cd frontend && npm run e2e` | alur lengkap semua role, laporan, tampilan HP | Lulus, tanpa error console / HTTP 5xx |
 | Constraint database | `psql -d simrs -f database/002_constraint_tests.sql` | semua pelanggaran | Ditolak database |
 
 ## A. Autentikasi dan hak akses
@@ -121,5 +123,17 @@ Semua test case di bawah dijalankan otomatis, tidak dicek manual satu per satu. 
 | ID | Skenario | Hasil yang diharapkan | Bukti | Status |
 |---|---|---|---|---|
 | TC-50 | Pendaftaran, pemeriksaan, tindakan, resep, farmasi, lab, billing, bayar bertahap, lunas, cetak | Semua langkah sukses, invoice dan status konsisten di tiap langkah | Yii `ServiceFlowTest::testFullOutpatientFlow`; E2E (screenshot `docs/screenshots/01`–`18`) | Lulus |
+
+## L. Laporan dan tampilan responsif
+
+| ID | Skenario | Hasil yang diharapkan | Bukti | Status |
+|---|---|---|---|---|
+| TC-51 | Laporan data pasien dengan filter periode, dasar periode (terdaftar / berkunjung), jenis kelamin, dan pencarian | Ringkasan per jenis kelamin dan kelompok umur benar; kunjungan batal tidak dihitung; paginasi benar | Node "laporan pasien: ringkasan, basis periode, filter, dan pencarian"; Postman 09 "Laporan data pasien" | Lulus |
+| TC-52 | Laporan stok obat per periode | Stok awal, masuk, keluar, dan stok akhir sesuai buku stok; status habis/menipis/aman; nilai stok benar | Node "laporan stok obat: stok awal/akhir dari buku stok…"; Postman 09 "Laporan stok obat" | Lulus |
+| TC-53 | Laporan jumlah resep per status, dokter, dan poli | Jumlah per status, per dokter, dan obat terbanyak benar; item void dan resep batal tidak dihitung | Node "laporan resep: jumlah per status, per dokter…"; Postman 09 "Laporan resep" | Lulus |
+| TC-54 | Ekspor laporan ke CSV untuk Excel | File CSV dengan BOM UTF-8, pemisah titik koma, isian berisi `;` atau `"` dikutip dengan benar | Node "laporan: ekspor CSV untuk Excel…"; Postman 09 "Laporan pasien CSV (Excel)"; E2E unduh CSV | Lulus |
+| TC-55 | Hak akses laporan dan validasi query | Farmasi hanya boleh laporan stok; tanpa permission 403; `limit` di atas 1000, status, atau format tidak dikenal 400 | Node "laporan: hak akses dan validasi query"; Postman 09 "Farmasi buka laporan…", "Limit laporan…" | Lulus |
+| TC-56 | Tanggal dari services-node dibuka di zona WIB | Tanggal dikirim sebagai `YYYY-MM-DD` dan tidak bergeser sehari | Node "kolom tanggal dikirim sebagai string YYYY-MM-DD…" (dijalankan dengan TZ UTC dan Asia/Jakarta) | Lulus |
+| TC-57 | Aplikasi dibuka di HP (390 px) | Menu menjadi panel geser yang tertutup setelah pindah halaman; dashboard, laporan, kasir, dan pasien tidak melebar ke samping | E2E langkah 10 (screenshot `20-hp-menu`, `21-hp-dashboard`); pengecekan lebar 320 sampai 1366 px | Lulus |
 
 Skenario D6 (performa) dibuktikan lewat desain index dan query, bukan test otomatis. Rinciannya ada di [`01_arsitektur.md`](01_arsitektur.md) bagian 6.

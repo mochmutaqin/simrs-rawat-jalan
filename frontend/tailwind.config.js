@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 /** Token desain SIMRS: warna penunjuk arah (wayfinding) per unit pelayanan. */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],

@@ -1,5 +1,6 @@
 -- =====================================================================
 -- SIMRS Rawat Jalan - PostgreSQL schema (Fase 1)
+-- Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 -- Instalasi:  psql -U postgres -d simrs -v ON_ERROR_STOP=1 -f 001_schema.sql
 -- Catatan:
 --   * Semua PK bernama "id" (dibutuhkan fn_audit()).

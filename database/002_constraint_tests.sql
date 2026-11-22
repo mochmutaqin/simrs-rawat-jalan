@@ -1,4 +1,5 @@
 -- Bukti constraint/trigger untuk skenario D (jalankan setelah 001_schema.sql).
+-- Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 -- Semua dibungkus transaksi lalu ROLLBACK, jadi DB tetap bersih.
 -- Jalankan: psql -d simrs -f 002_constraint_tests.sql
 \set ON_ERROR_STOP off

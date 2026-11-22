@@ -1,4 +1,5 @@
 @echo off
+REM Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 setlocal EnableExtensions
 REM ==================================================================
 REM  Setup SIMRS di Windows tanpa Docker.

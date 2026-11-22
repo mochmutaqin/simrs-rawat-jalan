@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, FlaskConical, History, Pill, Plus, Save, Stethoscope, Trash2, X } from 'lucide-react';
@@ -43,7 +50,7 @@ export default function Examination() {
       </header>
 
       {locked ? <ErrorBox error={{ message: 'Kunjungan ini sudah dibatalkan.' }} /> : (
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
           <ExamForm visit={v} onSaved={visit.reload} />
           <div className="space-y-6">
             <ProceduresPanel visitId={v.id} />
@@ -140,14 +147,14 @@ function ExamForm({ visit, onSaved }) {
           {diagnoses.length === 0 && <p className="rounded-md bg-wall px-3 py-2.5 text-[0.9rem] text-ink-soft">Belum ada diagnosis. Diagnosis utama wajib diisi sebelum pemeriksaan diselesaikan.</p>}
           <ul className="space-y-2">
             {diagnoses.map((d, i) => (
-              <li key={i} className="grid grid-cols-[7rem_1fr_9rem_auto] items-start gap-2">
+              <li key={i} className="grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-start gap-2 sm:grid-cols-[7rem_minmax(0,1fr)_9rem_auto]">
                 <input className="field-input num uppercase" list="icd10-list" placeholder="Kode" aria-label="Kode ICD-10" value={d.icd10_code}
                   onChange={(e) => {
                     const code = e.target.value.toUpperCase();
                     const known = ICD10_COMMON.find(([c]) => c === code);
                     setDiag(i, { icd10_code: code, ...(known && !d.diagnosis_name ? { diagnosis_name: known[1] } : {}) });
                   }} />
-                <input className="field-input" placeholder="Nama diagnosis" aria-label="Nama diagnosis" value={d.diagnosis_name} onChange={(e) => setDiag(i, { diagnosis_name: e.target.value })} />
+                <input className="field-input col-span-3 row-start-2 sm:col-span-1 sm:row-start-auto" placeholder="Nama diagnosis" aria-label="Nama diagnosis" value={d.diagnosis_name} onChange={(e) => setDiag(i, { diagnosis_name: e.target.value })} />
                 <select className="field-input" aria-label="Jenis diagnosis" value={d.diagnosis_type} onChange={(e) => setDiag(i, { diagnosis_type: e.target.value })}>
                   <option value="primary">Utama</option><option value="secondary">Sekunder</option>
                 </select>
@@ -209,8 +216,8 @@ function ProceduresPanel({ visitId }) {
           </ul>
         ) : <p className="mb-4 text-[0.9rem] text-ink-soft">Belum ada tindakan.</p>}
         {can('procedure.manage') && (
-          <div className="grid grid-cols-[1fr_5rem_auto] items-end gap-2">
-            <Select label="Tindakan" value={form.procedure_id} onChange={(e) => setForm({ ...form, procedure_id: e.target.value })}>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 sm:grid-cols-[minmax(0,1fr)_5rem_auto]">
+            <Select label="Tindakan" className="col-span-2 sm:col-span-1" value={form.procedure_id} onChange={(e) => setForm({ ...form, procedure_id: e.target.value })}>
               <option value="">Pilih tindakan</option>
               {master.data?.map((p) => <option key={p.id} value={p.id}>{p.name} · {rupiah(p.price)}</option>)}
             </Select>
@@ -335,7 +342,7 @@ function LabPanel({ visitId }) {
         {can('lab.request') && (
           <div>
             <p className="mb-2 text-[0.85rem] font-semibold text-ink-soft">Permintaan baru</p>
-            <div className="grid gap-1.5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
               {tests.data?.map((t) => (
                 <label key={t.id} className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-[0.9rem] ${picked.includes(t.id) ? 'border-unit-lab bg-unit-lab/5' : 'border-line'}`}>
                   <input type="checkbox" checked={picked.includes(t.id)} onChange={() => toggle(t.id)} className="accent-unit-lab" />

@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Banknote, Printer, RotateCcw, Search } from 'lucide-react';
@@ -81,29 +88,31 @@ export function InvoiceDetail() {
           {can('payment.create') && d.balance > 0 && <Button icon={Banknote} onClick={() => setPayOpen(true)}>Terima pembayaran</Button>}
         </>} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <section className="panel">
-          <h2 className="flex items-center justify-between border-b border-line px-5 py-3 font-bold">Rincian biaya
+          <h2 className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3 font-bold sm:px-5">Rincian biaya
             <span className="text-[0.85rem] font-normal text-ink-soft"><StatusBadge map={INVOICE_STATUS} value={d.status} /> <span className="num ml-2">revisi {d.revision}</span></span></h2>
+          <div className="overflow-x-auto">
           <table className="w-full text-[0.93rem]">
             <tbody>
               {GROUPS.map(([type, label]) => {
                 const items = d.items.filter((i) => i.item_type === type);
                 if (!items.length) return null;
                 return [
-                  <tr key={type} className="bg-wall/60"><td colSpan={3} className="px-5 py-1.5 text-[0.85rem] font-semibold text-ink-soft">{label}</td><td className="num px-5 py-1.5 text-right text-[0.85rem] font-semibold text-ink-soft">{rupiah(d.summary[type])}</td></tr>,
+                  <tr key={type} className="bg-wall/60"><td colSpan={3} className="px-3 py-1.5 text-[0.85rem] font-semibold text-ink-soft sm:px-5">{label}</td><td className="num px-3 py-1.5 text-right text-[0.85rem] font-semibold text-ink-soft sm:px-5">{rupiah(d.summary[type])}</td></tr>,
                   ...items.map((i) => (
                     <tr key={i.id} className={`border-b border-line ${i.voided_at ? 'text-ink-faint' : ''}`}>
-                      <td className="px-5 py-2"><span className={i.voided_at ? 'line-through' : ''}>{i.description}</span>{i.voided_at && <p className="text-[0.82rem]">Dibatalkan: {i.void_reason}</p>}</td>
+                      <td className="px-3 py-2 sm:px-5"><span className={i.voided_at ? 'line-through' : ''}>{i.description}</span>{i.voided_at && <p className="text-[0.82rem]">Dibatalkan: {i.void_reason}</p>}</td>
                       <td className="num px-2 py-2 text-right">{i.quantity}×</td>
-                      <td className="num px-2 py-2 text-right">{rupiah(i.unit_price)}</td>
-                      <td className={`num px-5 py-2 text-right ${i.voided_at ? 'line-through' : ''}`}>{rupiah(i.subtotal)}</td>
+                      <td className="num whitespace-nowrap px-2 py-2 text-right">{rupiah(i.unit_price)}</td>
+                      <td className={`num whitespace-nowrap px-3 py-2 text-right sm:px-5 ${i.voided_at ? 'line-through' : ''}`}>{rupiah(i.subtotal)}</td>
                     </tr>
                   )),
                 ];
               })}
             </tbody>
           </table>
+          </div>
           <dl className="num ml-auto max-w-sm space-y-1.5 px-5 py-4 text-[0.95rem]">
             <div className="flex justify-between"><dt>Total tagihan</dt><dd className="font-bold">{rupiah(d.total_amount)}</dd></div>
             <div className="flex justify-between text-ink-soft"><dt>Sudah dibayar</dt><dd>{rupiah(d.paid_amount)}</dd></div>
@@ -167,7 +176,7 @@ function PaymentModal({ invoice, refund = false, onClose, onDone }) {
     <Modal open title={refund ? 'Refund kelebihan bayar' : 'Terima pembayaran'} onClose={onClose}
       footer={<><Button variant="secondary" onClick={onClose}>Batal</Button><Button busy={busy} onClick={submit}>{refund ? 'Catat refund' : `Catat pembayaran ${rupiah(form.amount)}`}</Button></>}>
       <p className="num mb-4 rounded-md bg-wall px-4 py-3 text-[0.95rem]">{refund ? 'Kelebihan bayar' : 'Sisa tagihan'}: <b>{rupiah(max)}</b> dari total {rupiah(invoice.total_amount)}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input label={refund ? 'Jumlah refund' : 'Jumlah dibayar'} type="number" min={1} max={max} value={form.amount} onChange={set('amount')} error={errors.amount}
           hint={!refund && 'Boleh kurang dari sisa tagihan (pembayaran bertahap)'} className="sm:col-span-2" />
         <Select label="Metode" value={form.method} onChange={set('method')} error={errors.method}>

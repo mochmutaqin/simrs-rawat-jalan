@@ -1,4 +1,12 @@
 <?php
+
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 /** Gaya cetak bersama invoice & struk. */
 ?>
 <style>

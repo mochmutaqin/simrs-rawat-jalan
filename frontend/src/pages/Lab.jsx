@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import { RefreshCw, Save } from 'lucide-react';
 import { newIdempotencyKey, node } from '../api/client';
@@ -24,7 +31,7 @@ export default function Lab() {
         actions={<Button variant="secondary" icon={RefreshCw} onClick={list.reload}>Muat ulang</Button>} />
       <Tabs value={status} onChange={(s) => { setStatus(s); setPage(1); setSelected(null); }}
         tabs={[{ value: 'requested', label: 'Baru' }, { value: 'in_progress', label: 'Dikerjakan' }, { value: 'completed', label: 'Selesai' }]} />
-      <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+      <div className="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <section className="panel self-start">
           <ErrorBox error={list.error} onRetry={list.reload} />
           {list.loading && !list.data ? <div className="px-4"><Spinner /></div> : !list.data?.length ? <Empty title="Tidak ada permintaan" /> : (

@@ -1,4 +1,5 @@
 @echo off
+REM Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
 REM Hapus file bawaan template yii2-app-basic yang tidak dipakai backend API SIMRS.
 REM Jalankan SEKALI dari folder backend-yii:  cleanup-template.bat
 cd /d "%~dp0"

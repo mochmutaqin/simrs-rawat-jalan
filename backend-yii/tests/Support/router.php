@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 // Router untuk PHP built-in server (dev & tes): file statis dilayani langsung, sisanya ke front controller.
 // Contoh: php -S 127.0.0.1:8080 -t web tests/Support/router.php
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

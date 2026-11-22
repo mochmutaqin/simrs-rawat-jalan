@@ -1,7 +1,14 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Button, ErrorBox, Input } from '../components/ui';
+import { Button, ErrorBox, Input, PasswordInput } from '../components/ui';
 
 const DEMO = [
   ['admin', 'Administrator', 'bg-unit-admin'],
@@ -29,7 +36,7 @@ export default function Login() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1fr_minmax(420px,520px)]">
+    <div className="grid grid-cols-1 min-h-screen lg:grid-cols-[1fr_minmax(420px,520px)]">
       <section className="relative hidden flex-col justify-between overflow-hidden bg-[#10302C] p-12 text-white lg:flex">
         <div className="flex items-center gap-3">
           <img src="/favicon.svg" alt="" className="h-10 w-10" />
@@ -53,7 +60,7 @@ export default function Login() {
           <p className="mt-1 text-ink-soft">Gunakan akun petugas Anda.</p>
           <form onSubmit={submit} className="mt-6 space-y-4">
             <Input label="Username" autoComplete="username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
-            <Input label="Password" type="password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <PasswordInput label="Password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
             <ErrorBox error={error} />
             <Button type="submit" busy={busy} className="w-full">Masuk</Button>
           </form>
@@ -72,6 +79,7 @@ export default function Login() {
               ))}
             </ul>
           </div>
+          <p className="mt-8 text-[0.8rem] text-ink-faint">Dibuat oleh Mochamad Mutaqin Kurniawan</p>
         </div>
       </section>
     </div>

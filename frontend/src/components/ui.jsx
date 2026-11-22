@@ -1,5 +1,12 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Loader2, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2, X } from 'lucide-react';
 
 /* ---------- tombol ---------- */
 const BTN = {
@@ -39,6 +46,24 @@ export const Input = ({ label, error, hint, className, ...p }) => (
     {(id) => <input id={id} className={`field-input ${error ? 'border-st-danger' : ''}`} {...p} />}
   </Field>
 );
+/** Input password dengan tombol mata untuk menampilkan / menyembunyikan isinya. */
+export function PasswordInput({ label, error, hint, className, type: _type, ...p }) {
+  const [show, setShow] = useState(false);
+  return (
+    <Field label={label} error={error} hint={hint} className={className}>
+      {(id) => (
+        <div className="relative">
+          <input id={id} type={show ? 'text' : 'password'} className={`field-input pr-11 ${error ? 'border-st-danger' : ''}`} {...p} />
+          <button type="button" onClick={() => setShow((s) => !s)} aria-controls={id} aria-pressed={show}
+            aria-label={show ? 'Sembunyikan password' : 'Tampilkan password'} title={show ? 'Sembunyikan password' : 'Tampilkan password'}
+            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-ink-faint hover:text-ink">
+            {show ? <EyeOff className="h-[18px] w-[18px]" aria-hidden /> : <Eye className="h-[18px] w-[18px]" aria-hidden />}
+          </button>
+        </div>
+      )}
+    </Field>
+  );
+}
 export const Textarea = ({ label, error, hint, className, rows = 3, ...p }) => (
   <Field label={label} error={error} hint={hint} className={className}>
     {(id) => <textarea id={id} rows={rows} className={`field-input ${error ? 'border-st-danger' : ''}`} {...p} />}
@@ -77,6 +102,22 @@ export function QueueTicket({ code, size = 'md', tone = 'exam' }) {
     </span>
   );
 }
+
+/* ---------- ringkasan angka ---------- */
+/** Deret kotak angka. Di HP 2 kolom; kotak terakhir yang ganjil melebar agar tidak ada sel kosong. */
+export const StatGrid = ({ children, cols = 'md:grid-cols-5', label = 'Ringkasan' }) => (
+  <section aria-label={label}
+    className={`mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-panel border border-line bg-line ${cols} [&>*:last-child:nth-child(odd)]:col-span-2 md:[&>*:last-child:nth-child(odd)]:col-span-1`}>
+    {children}
+  </section>
+);
+export const Stat = ({ label, value, strong, note }) => (
+  <div className="min-w-0 bg-white px-4 py-3.5 sm:px-5 sm:py-4">
+    <p className="text-[0.85rem] text-ink-soft">{label}</p>
+    <p className={`num mt-1 break-words font-extrabold leading-tight ${strong ? 'text-[1.4rem] text-rs sm:text-[1.6rem]' : 'text-[1.25rem] sm:text-[1.4rem]'}`}>{value}</p>
+    {note && <p className="mt-0.5 text-[0.8rem] text-ink-faint">{note}</p>}
+  </div>
+);
 
 /* ---------- umpan balik ---------- */
 export const Spinner = ({ label = 'Memuat…' }) => (
@@ -160,7 +201,7 @@ export const useToast = () => useContext(ToastCtx);
 export function Pagination({ meta, onPage }) {
   if (!meta || meta.total_pages <= 1) return null;
   return (
-    <div className="flex items-center justify-between border-t border-line px-3 py-2 text-[0.85rem] text-ink-soft">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-3 py-2 text-[0.85rem] text-ink-soft">
       <span className="num">{meta.total} data · halaman {meta.page} dari {meta.total_pages}</span>
       <div className="flex gap-1">
         <Button size="sm" variant="secondary" disabled={meta.page <= 1} onClick={() => onPage(meta.page - 1)}>Sebelumnya</Button>
@@ -170,15 +211,18 @@ export function Pagination({ meta, onPage }) {
   );
 }
 
+/** Tab: di layar sempit bisa digeser ke samping, tidak membuat halaman melebar. */
 export function Tabs({ tabs, value, onChange }) {
   return (
-    <div role="tablist" className="flex gap-1 border-b border-line">
-      {tabs.map((t) => (
-        <button key={t.value} role="tab" aria-selected={value === t.value} onClick={() => onChange(t.value)}
-          className={`-mb-px border-b-2 px-3 py-2 text-[0.92rem] font-semibold ${value === t.value ? 'border-rs text-ink' : 'border-transparent text-ink-soft hover:text-ink'}`}>
-          {t.label}{t.count !== undefined && <span className="num ml-1.5 text-ink-faint">{t.count}</span>}
-        </button>
-      ))}
+    <div className="border-b border-line">
+      <div role="tablist" className="-mb-px flex gap-1 overflow-x-auto [scrollbar-width:none]">
+        {tabs.map((t) => (
+          <button key={t.value} role="tab" aria-selected={value === t.value} onClick={() => onChange(t.value)}
+            className={`shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-[0.92rem] font-semibold ${value === t.value ? 'border-rs text-ink' : 'border-transparent text-ink-soft hover:text-ink'}`}>
+            {t.label}{t.count !== undefined && <span className="num ml-1.5 text-ink-faint">{t.count}</span>}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

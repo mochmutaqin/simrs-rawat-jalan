@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useState } from 'react';
 import { yii } from '../api/client';
 import { Button, ErrorBox, Input, Select, Textarea } from './ui';
@@ -57,7 +64,7 @@ export default function PatientForm({ initial, onSaved, onCancel, onPickExisting
 
   return (
     <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); save(); }}>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input label="Nama lengkap" value={form.name} onChange={set('name')} error={errors.name} required className="sm:col-span-2" />
         <Input label="NIK" inputMode="numeric" maxLength={16} value={form.nik || ''} onChange={set('nik')} error={errors.nik} hint="16 digit, kosongkan bila tidak ada" />
         <Input label="Nomor HP" value={form.phone || ''} onChange={set('phone')} error={errors.phone} />

@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 // Daftar singkat ICD-10 yang sering dipakai di rawat jalan (bantuan isian, dokter tetap bisa mengetik kode lain).
 export const ICD10_COMMON = [
   ['J06.9', 'Infeksi saluran pernapasan atas akut (ISPA)'], ['J00', 'Nasofaringitis akut (common cold)'],

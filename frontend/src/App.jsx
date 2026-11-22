@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
@@ -15,6 +22,7 @@ import Registration from './pages/Registration';
 
 // grafik (recharts) hanya dimuat saat dashboard dibuka
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Reports = lazy(() => import('./pages/Reports'));
 
 /** Route dilindungi permission yang sama dengan backend (lapisan UX; keamanan tetap di API). */
 function Guard({ perms, children }) {
@@ -33,6 +41,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Navigate to={firstAllowedPath(can)} replace />} />
         <Route path="dashboard" element={<Guard perms={['report.view']}><Suspense fallback={<Spinner />}><Dashboard /></Suspense></Guard>} />
+        <Route path="laporan" element={<Guard perms={['report.view', 'medicine.manage']}><Suspense fallback={<Spinner />}><Reports /></Suspense></Guard>} />
         <Route path="pendaftaran" element={<Guard perms={['registration.manage', 'queue.view']}><Registration /></Guard>} />
         <Route path="pasien" element={<Guard perms={['patient.manage', 'exam.view', 'billing.view']}><PatientList /></Guard>} />
         <Route path="pasien/:id" element={<Guard perms={['patient.manage', 'exam.view', 'billing.view', 'queue.view']}><PatientDetail /></Guard>} />

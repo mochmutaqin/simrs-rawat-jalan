@@ -1,4 +1,11 @@
 /**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
+/**
  * Uji end-to-end alur pelayanan lewat browser + ambil screenshot (bukti implementasi).
  * Prasyarat: backend Yii (:8080), services-node (:3001), dan `npm run dev` (:5173) menyala,
  * data demo sudah di-seed. Jalankan:  node scripts/e2e-flow.mjs [folder-output]
@@ -37,7 +44,7 @@ async function shot(p, name, fullPage = false) {
 async function login(p, username) {
   await p.goto(BASE + '/');
   await p.getByLabel('Username').fill(username);
-  await p.getByLabel('Password').fill('password123');
+  await p.getByLabel('Password', { exact: true }).fill('password123');
   await p.getByRole('button', { name: 'Masuk', exact: true }).click();
   await p.getByText('Masuk sebagai').waitFor();
   ok(`login ${username}`);
@@ -240,6 +247,38 @@ else ok('menu kasir hanya: ' + menu.split('\n').filter((l) => l.trim()).join(' |
 await p.goto(BASE + '/pemeriksaan');
 await p.getByText('Anda tidak punya akses ke halaman ini').waitFor();
 ok('halaman dokter ditolak untuk kasir');
+
+/* ---------- 9. laporan ---------- */
+step('Laporan: data pasien, stok obat, resep, unduh CSV');
+await p.goto(BASE + '/laporan');
+await p.getByText('Rincian data pasien').waitFor();
+await p.getByRole('tab', { name: 'Stok obat' }).click();
+await p.getByText('Rincian stok obat').waitFor();
+await p.getByRole('tab', { name: 'Resep' }).click();
+await p.getByText('Resep per dokter').waitFor();
+if (!(await p.getByText(patientName).count())) problems.push('Laporan resep: resep pasien hari ini tidak muncul');
+await shot(p, 'laporan-resep', true);
+const [csv] = await Promise.all([p.waitForEvent('download'), p.getByRole('button', { name: 'Unduh CSV' }).click()]);
+ok(`CSV diunduh: ${csv.suggestedFilename()}`);
+
+/* ---------- 10. tampilan HP ---------- */
+step('Tampilan HP (390 px): menu geser, tanpa geser horizontal');
+await p.setViewportSize({ width: 390, height: 844 });
+for (const path of ['/dashboard', '/laporan?tab=stock', '/kasir', '/pasien']) {
+  await p.goto(BASE + path);
+  await p.waitForLoadState('networkidle');
+  const overflow = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (overflow > 0) problems.push(`HP: halaman ${path} melebar ${overflow}px`);
+}
+ok('dashboard, laporan, kasir, pasien muat di layar 390 px');
+await p.getByRole('button', { name: 'Buka menu' }).click();
+await p.getByRole('dialog', { name: 'Menu' }).waitFor();
+await shot(p, 'hp-menu');
+await p.getByRole('link', { name: 'Dashboard', exact: true }).click();
+await p.getByRole('dialog', { name: 'Menu' }).waitFor({ state: 'detached' });
+await p.getByText('Pendapatan harian').waitFor();
+ok('menu tertutup setelah pindah halaman');
+await shot(p, 'hp-dashboard', true);
 
 await browser.close();
 console.log(problems.length ? `\n✗ ${problems.length} masalah:\n- ${problems.join('\n- ')}` : '\n✓ Alur lengkap berhasil tanpa error console / HTTP 5xx');

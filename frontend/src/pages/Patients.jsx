@@ -1,3 +1,10 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Pencil, Plus } from 'lucide-react';
@@ -76,7 +83,7 @@ export function PatientDetail() {
   return (
     <>
       <PageHeader unit="reg" title={p.name} subtitle={`${p.medical_record_no} · ${p.gender === 'L' ? 'Laki-laki' : 'Perempuan'}, ${umur(p.birth_date)} · lahir ${tanggal(p.birth_date)}`} />
-      <div className="mb-6 grid gap-4 text-[0.92rem] sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-4 text-[0.92rem] sm:grid-cols-3">
         <Info label="NIK" value={p.nik || 'Tidak ada'} />
         <Info label="Nomor HP" value={p.phone || '-'} />
         <Info label="Alamat" value={p.address || '-'} />
@@ -135,7 +142,7 @@ export function MedicalRecords({ patientId, excludeVisitId }) {
               <p className="text-[0.88rem] text-ink-soft">{v.doctor}</p>
             </div>
             {!e ? <p className="mt-2 text-ink-soft">Belum diperiksa.</p> : (
-              <div className="mt-3 grid gap-4 text-[0.92rem] md:grid-cols-2">
+              <div className="mt-3 grid grid-cols-1 gap-4 text-[0.92rem] md:grid-cols-2">
                 <div>
                   <p className="font-semibold text-ink-soft">Keluhan & anamnesis</p>
                   <p>{e.chief_complaint || '-'}</p>

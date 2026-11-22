@@ -1,4 +1,11 @@
 /**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
+/**
  * Klien HTTP untuk dua backend:
  *   yii  -> /api/...           (business logic & semua penulisan data)
  *   node -> /node/api/v1/...   (lab worklist/hasil, dashboard)
@@ -58,6 +65,7 @@ async function request(base, method, path, { body, query, headers, raw } = {}) {
     throw new ApiError(0, 'NETWORK_ERROR', 'Server tidak dapat dihubungi. Periksa koneksi atau pastikan backend menyala.');
   }
 
+  if (raw === 'blob' && res.ok) return { blob: await res.blob(), filename: filenameFrom(res.headers.get('Content-Disposition')) };
   if (raw && res.ok) return res.text();
   let json = null;
   try { json = await res.json(); } catch { /* bukan JSON */ }
@@ -70,12 +78,23 @@ async function request(base, method, path, { body, query, headers, raw } = {}) {
   return { data: json?.data, meta: json?.meta };
 }
 
+const filenameFrom = (cd) => (cd && /filename="?([^";]+)"?/i.exec(cd)?.[1]) || 'laporan.csv';
+
 const client = (base) => ({
   get: (path, query, opts) => request(base, 'GET', path, { query, ...opts }),
   post: (path, body, opts) => request(base, 'POST', path, { body: body ?? {}, ...opts }),
   put: (path, body, opts) => request(base, 'PUT', path, { body: body ?? {}, ...opts }),
   del: (path, body, opts) => request(base, 'DELETE', path, { body, ...opts }),
   html: (path) => request(base, 'GET', path, { raw: true }),
+  /** Unduh file (mis. CSV laporan) dengan token, lalu simpan lewat browser. */
+  download: async (path, query) => {
+    const { blob, filename } = await request(base, 'GET', path, { query, raw: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: filename });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return filename;
+  },
 });
 
 export const yii = client('/api');

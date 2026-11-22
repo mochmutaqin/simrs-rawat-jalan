@@ -1,7 +1,15 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
-  BarChart3, Building2, CalendarClock, ClipboardList, FlaskConical, LogOut, Pill, ReceiptText,
-  Stethoscope, Syringe, TestTube2, UserCog, UserRound, Users, Wallet,
+  BarChart3, Building2, CalendarClock, ClipboardList, FileSpreadsheet, FlaskConical, LogOut, Menu, Pill, ReceiptText,
+  Stethoscope, Syringe, TestTube2, UserCog, UserRound, Users, Wallet, X,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { tanggalPanjang, today } from '../lib/format';
@@ -11,8 +19,9 @@ import { tanggalPanjang, today } from '../lib/format';
  * Item hanya muncul bila user punya permission-nya (sama dengan RBAC di backend).
  */
 export const NAV = [
-  { unit: 'Dashboard', color: 'bg-unit-dash', items: [
-    { to: '/dashboard', label: 'Dashboard & laporan', icon: BarChart3, perms: ['report.view'] },
+  { unit: 'Dashboard & laporan', color: 'bg-unit-dash', items: [
+    { to: '/dashboard', label: 'Dashboard', icon: BarChart3, perms: ['report.view'] },
+    { to: '/laporan', label: 'Laporan', icon: FileSpreadsheet, perms: ['report.view', 'medicine.manage'] },
   ] },
   { unit: 'Pendaftaran', color: 'bg-unit-reg', items: [
     { to: '/pendaftaran', label: 'Antrean & pendaftaran', icon: ClipboardList, perms: ['registration.manage', 'queue.view'] },
@@ -49,61 +58,109 @@ export function firstAllowedPath(can) {
 export default function Layout() {
   const { user, logout, can } = useAuth();
   const loc = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef(null);
   const groups = NAV.map((g) => ({ ...g, items: g.items.filter((i) => can(...i.perms)) })).filter((g) => g.items.length);
+
+  // menu HP/tablet: tutup otomatis setelah pindah halaman
+  useEffect(() => { setMenuOpen(false); }, [loc.pathname]);
+  const closeMenu = useCallback(() => { setMenuOpen(false); menuButton.current?.focus(); }, []);
 
   return (
     <div className="flex min-h-screen">
+      {/* desktop (>= 1024 px): sidebar selalu tampil */}
       <aside className="hidden w-64 shrink-0 bg-[#10302C] text-white/90 lg:block">
-        <div className="sticky top-0 flex h-screen flex-col overflow-y-auto">
-        <div className="flex items-center gap-3 px-5 py-5">
-          <img src="/favicon.svg" alt="" className="h-8 w-8" />
-          <div>
-            <p className="font-extrabold leading-tight text-white">SIMRS Rawat Jalan</p>
-            <p className="text-[0.78rem] text-white/60">RS Inova Medika (demo)</p>
-          </div>
-        </div>
-        <nav className="flex-1 px-3 pb-4" aria-label="Menu utama">
-          {groups.map((g) => (
-            <div key={g.unit} className="mt-4">
-              <p className="flex items-center gap-2 px-2 pb-1.5 text-[0.78rem] font-semibold text-white/55">
-                <span className={`h-2.5 w-2.5 rounded-sm ${g.color}`} aria-hidden />{g.unit}
-              </p>
-              {g.items.map((i) => (
-                <NavLink key={i.to} to={i.to} end={i.to === '/farmasi'}
-                  className={({ isActive }) => `flex items-center gap-3 rounded-md px-2 py-2 text-[0.92rem] ${isActive ? 'bg-white/10 font-semibold text-white' : 'text-white/75 hover:bg-white/5 hover:text-white'}`}>
-                  {({ isActive }) => (<>
-                    <span className={`h-5 w-1 rounded-full ${isActive ? g.color : 'bg-transparent'}`} aria-hidden />
-                    <i.icon className="h-4 w-4" aria-hidden />{i.label}
-                  </>)}
-                </NavLink>
-              ))}
-            </div>
-          ))}
-        </nav>
-        <div className="border-t border-white/10 px-5 py-4">
-          <p className="font-semibold text-white">{user.full_name}</p>
-          <p className="text-[0.82rem] text-white/60">{user.role_name}</p>
-          <button onClick={logout} className="mt-3 inline-flex items-center gap-2 text-[0.88rem] text-white/75 hover:text-white">
-            <LogOut className="h-4 w-4" /> Keluar
-          </button>
-        </div>
+        <div className="sticky top-0 h-screen">
+          <SidebarContent groups={groups} user={user} logout={logout} />
         </div>
       </aside>
 
+      {/* HP & tablet (< 1024 px): sidebar jadi panel geser dari kiri */}
+      {menuOpen && <MobileMenu onClose={closeMenu}><SidebarContent groups={groups} user={user} logout={logout} /></MobileMenu>}
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-3 lg:px-8">
-          <p className="text-[0.9rem] text-ink-soft">{tanggalPanjang(today())}</p>
-          <div className="flex items-center gap-3 lg:hidden">
-            <select className="field-input w-auto py-1.5" value={loc.pathname} onChange={(e) => { window.location.href = e.target.value; }} aria-label="Pindah halaman">
-              {groups.flatMap((g) => g.items).map((i) => <option key={i.to} value={i.to}>{i.label}</option>)}
-            </select>
-            <button onClick={logout} className="text-ink-soft" aria-label="Keluar"><LogOut className="h-5 w-5" /></button>
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-white px-3 py-2.5 sm:px-4 lg:static lg:px-8 lg:py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <button ref={menuButton} onClick={() => setMenuOpen(true)} aria-label="Buka menu" aria-expanded={menuOpen} aria-controls="menu-hp"
+              className="-ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-ink hover:bg-wall lg:hidden">
+              <Menu className="h-6 w-6" aria-hidden />
+            </button>
+            <img src="/favicon.svg" alt="" className="h-7 w-7 shrink-0 lg:hidden" />
+            <p className="truncate font-extrabold lg:hidden">SIMRS Rawat Jalan</p>
+            <p className="hidden text-[0.9rem] text-ink-soft lg:block">{tanggalPanjang(today())}</p>
           </div>
-          <p className="hidden text-[0.9rem] text-ink-soft lg:block">Masuk sebagai <span className="font-semibold text-ink">{user.username}</span></p>
+          <p className="hidden shrink-0 text-[0.9rem] text-ink-soft sm:block">Masuk sebagai <span className="font-semibold text-ink">{user.username}</span></p>
         </header>
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 lg:px-8">
+        <main className="mx-auto w-full max-w-[1400px] flex-1 px-3 py-5 sm:px-4 sm:py-6 lg:px-8">
           <Outlet />
         </main>
+      </div>
+    </div>
+  );
+}
+
+/** Isi sidebar: logo, menu per unit, user aktif, tombol keluar. Dipakai sidebar desktop dan menu HP. */
+function SidebarContent({ groups, user, logout }) {
+  return (
+    <div className="flex h-full flex-col overflow-y-auto">
+      <div className="flex items-center gap-3 px-5 py-5">
+        <img src="/favicon.svg" alt="" className="h-8 w-8" />
+        <div>
+          <p className="font-extrabold leading-tight text-white">SIMRS Rawat Jalan</p>
+          <p className="text-[0.78rem] text-white/60">RS Inova Medika (demo)</p>
+        </div>
+      </div>
+      <nav className="flex-1 px-3 pb-4" aria-label="Menu utama">
+        {groups.map((g) => (
+          <div key={g.unit} className="mt-4">
+            <p className="flex items-center gap-2 px-2 pb-1.5 text-[0.78rem] font-semibold text-white/55">
+              <span className={`h-2.5 w-2.5 rounded-sm ${g.color}`} aria-hidden />{g.unit}
+            </p>
+            {g.items.map((i) => (
+              <NavLink key={i.to} to={i.to} end={i.to === '/farmasi'}
+                className={({ isActive }) => `flex items-center gap-3 rounded-md px-2 py-2.5 text-[0.92rem] lg:py-2 ${isActive ? 'bg-white/10 font-semibold text-white' : 'text-white/75 hover:bg-white/5 hover:text-white'}`}>
+                {({ isActive }) => (<>
+                  <span className={`h-5 w-1 rounded-full ${isActive ? g.color : 'bg-transparent'}`} aria-hidden />
+                  <i.icon className="h-4 w-4" aria-hidden />{i.label}
+                </>)}
+              </NavLink>
+            ))}
+          </div>
+        ))}
+      </nav>
+      <div className="border-t border-white/10 px-5 py-4">
+        <p className="font-semibold text-white">{user.full_name}</p>
+        <p className="text-[0.82rem] text-white/60">{user.role_name}</p>
+        <button onClick={logout} className="mt-3 inline-flex items-center gap-2 text-[0.88rem] text-white/75 hover:text-white">
+          <LogOut className="h-4 w-4" /> Keluar
+        </button>
+      </div>
+      <p className="px-5 pb-4 text-[0.75rem] leading-snug text-white/40">Dibuat oleh<br />Mochamad Mutaqin Kurniawan</p>
+    </div>
+  );
+}
+
+/** Panel menu geser untuk layar < 1024 px. Tutup dengan tombol X, klik di luar panel, atau Escape. */
+function MobileMenu({ onClose, children }) {
+  const closeBtn = useRef(null);
+  useEffect(() => {
+    closeBtn.current?.focus();
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';            // halaman di belakang tidak ikut tergulir
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prevOverflow; };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden" id="menu-hp" role="dialog" aria-modal="true" aria-label="Menu">
+      <button className="absolute inset-0 h-full w-full cursor-default bg-ink/50" onClick={onClose} aria-label="Tutup menu" tabIndex={-1} />
+      <div className="relative h-full w-72 max-w-[85vw] bg-[#10302C] text-white/90 shadow-xl">
+        <button ref={closeBtn} onClick={onClose} aria-label="Tutup menu"
+          className="absolute right-2 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-md text-white/75 hover:bg-white/10 hover:text-white">
+          <X className="h-5 w-5" aria-hidden />
+        </button>
+        {children}
       </div>
     </div>
   );

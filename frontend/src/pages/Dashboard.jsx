@@ -1,10 +1,18 @@
+/**
+ * SIMRS Rawat Jalan
+ *
+ * @author  Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+ * @link    https://github.com/mochmutaqin/simrs-rawat-jalan
+ */
+
 import { useMemo, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CheckCircle2, CircleDashed, CircleDot, RefreshCw } from 'lucide-react';
 import { node, yii } from '../api/client';
 import { PageHeader } from '../components/Layout';
-import { Button, Empty, ErrorBox, Input, Pagination, Select, Spinner, StatusBadge } from '../components/ui';
-import { INVOICE_STATUS, num, rupiah, shiftDate, tanggal, today, VISIT_STATUS } from '../lib/format';
+import { PeriodFilter, usePeriod } from '../components/PeriodFilter';
+import { Button, Empty, ErrorBox, Pagination, Select, Spinner, Stat, StatGrid, StatusBadge } from '../components/ui';
+import { INVOICE_STATUS, num, rupiah, tanggal, VISIT_STATUS } from '../lib/format';
 import { useApi } from '../lib/useApi';
 
 // Palet grafik (divalidasi dataviz/validate_palette.js: chroma, CVD ΔE ≥ 8, kontras ≥ 3:1).
@@ -12,26 +20,17 @@ import { useApi } from '../lib/useApi';
 const SERIES = { cash: '#00897B', non_cash: '#7B4BB0' };
 const AXIS = { stroke: '#7C8E8B', fontSize: 12 };
 
-const PRESETS = [
-  { key: 'today', label: 'Hari ini', range: () => [today(), today()] },
-  { key: '7d', label: '7 hari', range: () => [shiftDate(today(), -6), today()] },
-  { key: '30d', label: '30 hari', range: () => [shiftDate(today(), -29), today()] },
-  { key: 'month', label: 'Bulan ini', range: () => [`${today().slice(0, 8)}01`, today()] },
-];
-
 const short = (n) => (n >= 1e6 ? `${(n / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt` : n >= 1e3 ? `${Math.round(n / 1e3)} rb` : `${n}`);
 
 export default function Dashboard() {
-  const [preset, setPreset] = useState('30d');
-  const [range, setRange] = useState(PRESETS[2].range());
-  const [from, to] = range;
+  const period = usePeriod('30d');
+  const { from, to } = period;
   const q = { from, to };
   const summary = useApi(() => node.get('/dashboard/summary', q), [from, to]);
   const revenue = useApi(() => node.get('/dashboard/revenue', q), [from, to]);
   const procedures = useApi(() => node.get('/dashboard/procedures', q), [from, to]);
   const meds = useApi(() => node.get('/dashboard/medicine-usage', q), [from, to]);
 
-  const pick = (p) => { setPreset(p.key); setRange(p.range()); };
   const reloadAll = () => [summary, revenue, procedures, meds].forEach((x) => x.reload());
   const s = summary.data;
 
@@ -41,29 +40,20 @@ export default function Dashboard() {
         actions={<Button variant="secondary" icon={RefreshCw} onClick={reloadAll}>Muat ulang</Button>} />
 
       {/* filter periode: satu baris di atas semua grafik */}
-      <div className="mb-6 flex flex-wrap items-end gap-3">
-        <div className="flex rounded-md border border-line-strong bg-white p-0.5" role="group" aria-label="Periode cepat">
-          {PRESETS.map((p) => (
-            <button key={p.key} onClick={() => pick(p)} aria-pressed={preset === p.key}
-              className={`rounded px-3 py-1.5 text-[0.9rem] font-semibold ${preset === p.key ? 'bg-rs text-white' : 'text-ink-soft hover:bg-wall'}`}>{p.label}</button>
-          ))}
-        </div>
-        <Input label="Dari" type="date" value={from} max={to} onChange={(e) => { setPreset(''); setRange([e.target.value, to]); }} className="w-44" />
-        <Input label="Sampai" type="date" value={to} min={from} onChange={(e) => { setPreset(''); setRange([from, e.target.value]); }} className="w-44" />
-      </div>
+      <PeriodFilter period={period} />
 
       <ErrorBox error={summary.error} onRetry={reloadAll} />
       {summary.loading && !s ? <Spinner /> : s && (
         <>
-          <section className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-panel border border-line bg-line md:grid-cols-5" aria-label="Ringkasan">
+          <StatGrid>
             <Stat label="Kunjungan" value={num(s.total_visits)} />
             <Stat label="Tindakan medis" value={num(s.total_procedures)} />
             <Stat label="Pendapatan diterima" value={rupiah(s.revenue_received)} strong />
             <Stat label="Total tagihan" value={rupiah(s.revenue_invoiced)} />
             <Stat label="Obat keluar" value={`${num(s.medicine_units_dispensed)} unit`} />
-          </section>
+          </StatGrid>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             <RevenueChart data={revenue.data} loading={revenue.loading} />
             <PaymentStatus rows={s.payment_status} />
             <VisitsByPoli rows={s.visits_by_poli} />
@@ -77,18 +67,11 @@ export default function Dashboard() {
   );
 }
 
-const Stat = ({ label, value, strong }) => (
-  <div className="bg-white px-5 py-4">
-    <p className="text-[0.85rem] text-ink-soft">{label}</p>
-    <p className={`num mt-1 font-extrabold leading-tight ${strong ? 'text-[1.6rem] text-rs' : 'text-[1.4rem]'}`}>{value}</p>
-  </div>
-);
-
 function Panel({ title, children, className = '', right }) {
   return (
     <section className={`panel ${className}`}>
-      <h2 className="flex items-center justify-between border-b border-line px-5 py-3 font-bold">{title}{right}</h2>
-      <div className="px-5 py-4">{children}</div>
+      <h2 className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line px-4 py-3 font-bold sm:px-5">{title}{right}</h2>
+      <div className="px-4 py-4 sm:px-5">{children}</div>
     </section>
   );
 }
@@ -233,13 +216,13 @@ function VisitDetails({ from, to }) {
       <ErrorBox error={r.error} />
       {r.loading && !r.data ? <div className="px-5"><Spinner /></div> : !r.data?.length ? <Empty title="Tidak ada kunjungan untuk filter ini" /> : (
         <div className="overflow-x-auto">
-          <table className="w-full text-[0.92rem]">
+          <table className="w-full min-w-[860px] text-[0.92rem]">
             <thead className="border-b border-line bg-wall/60"><tr><th className="th">Tanggal</th><th className="th">Pasien</th><th className="th">Poli / dokter</th><th className="th">Kunjungan</th><th className="th">Invoice</th><th className="th text-right">Total</th><th className="th text-right">Dibayar</th></tr></thead>
             <tbody className="divide-y divide-line">
               {r.data.map((v) => (
                 <tr key={v.id}>
-                  <td className="td num">{tanggal(v.visit_date)}</td>
-                  <td className="td">{v.patient_name}<p className="num text-[0.85rem] text-ink-soft">{v.medical_record_no}</p></td>
+                  <td className="td num whitespace-nowrap">{tanggal(v.visit_date)}</td>
+                  <td className="td">{v.patient_name}<p className="num whitespace-nowrap text-[0.85rem] text-ink-soft">{v.medical_record_no}</p></td>
                   <td className="td">{v.poli}<p className="text-[0.85rem] text-ink-soft">{v.doctor}</p></td>
                   <td className="td"><StatusBadge map={VISIT_STATUS} value={v.status} /></td>
                   <td className="td">{v.invoice_no ? <><p className="num">{v.invoice_no}</p><StatusBadge map={INVOICE_STATUS} value={v.payment_status} /></> : '-'}</td>
