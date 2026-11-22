@@ -2,11 +2,13 @@
 const express = require('express');
 const db = require('./db');
 const { authenticate } = require('./middleware/auth');
+const { cors } = require('./middleware/cors');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const { ok } = require('./lib/response');
 
 const app = express();
 app.disable('x-powered-by');
+app.use(cors);
 app.use(express.json({ limit: '100kb' }));
 
 app.get('/health', async (_req, res) => {

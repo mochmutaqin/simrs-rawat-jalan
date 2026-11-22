@@ -1,0 +1,29 @@
+@import '@fontsource/atkinson-hyperlegible-next/400.css';
+@import '@fontsource/atkinson-hyperlegible-next/600.css';
+@import '@fontsource/atkinson-hyperlegible-next/700.css';
+@import '@fontsource/atkinson-hyperlegible-next/800.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-size: 15px; }
+  body { font-feature-settings: 'tnum' 0; }
+  :focus-visible { outline: 2px solid #0E6B5C; outline-offset: 2px; }
+  h1, h2, h3 { letter-spacing: -0.01em; }
+}
+
+@layer components {
+  .num { font-variant-numeric: tabular-nums; }
+  .field-input {
+    @apply w-full rounded-md border border-line-strong bg-white px-3 py-2 text-[0.95rem] text-ink placeholder:text-ink-faint
+           focus:border-rs focus:outline-none focus:ring-2 focus:ring-rs/20 disabled:bg-wall disabled:text-ink-soft;
+  }
+  .panel { @apply rounded-panel border border-line bg-white; }
+  .th { @apply px-3 py-2 text-left text-[0.8rem] font-semibold text-ink-soft; }
+  .td { @apply px-3 py-2.5 align-top; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

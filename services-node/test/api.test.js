@@ -272,3 +272,16 @@ test('event integrasi: wajib service token, idempoten pada duplikat', async () =
   const bad = await api('POST', '/api/v1/integration/events', { body: { id: 'x', type: 'aneh' }, headers: h });
   assert.equal(bad.status, 400);
 });
+
+// ---------------- CORS ----------------
+test('CORS: origin terdaftar diizinkan + preflight 204, origin asing tidak', async () => {
+  const pre = await fetch(base + '/api/v1/dashboard/summary', {
+    method: 'OPTIONS', headers: { Origin: 'http://localhost:5173', 'Access-Control-Request-Method': 'GET' },
+  });
+  assert.equal(pre.status, 204);
+  assert.equal(pre.headers.get('access-control-allow-origin'), 'http://localhost:5173');
+  assert.match(pre.headers.get('access-control-allow-headers'), /Idempotency-Key/);
+  const evil = await fetch(base + '/health', { headers: { Origin: 'http://evil.example' } });
+  assert.equal(evil.headers.get('access-control-allow-origin'), null);
+});
+

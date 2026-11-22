@@ -123,7 +123,8 @@ class ServiceFlowTest extends ApiTestCase
         [, $j] = $this->api('GET', "/api/patients/$patientId/payments", 'kasir');
         $this->assertSame(2, $j['meta']['total']);
         foreach (["/api/invoices/{$d['id']}/print", "/api/payments/$receiptId/receipt"] as $path) {
-            $res = $this->http()->get($path, ['headers' => ['Authorization' => 'Bearer ' . $this->token('kasir')]]);
+            // Accept: text/html seperti browser saat membuka dokumen cetak
+            $res = $this->http()->get($path, ['headers' => ['Authorization' => 'Bearer ' . $this->token('kasir'), 'Accept' => 'text/html']]);
             $this->assertSame(200, $res->getStatusCode());
             $this->assertStringContainsString('text/html', $res->getHeaderLine('Content-Type'));
             $this->assertStringContainsString($d['invoice_no'], (string) $res->getBody());

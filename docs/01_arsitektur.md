@@ -181,7 +181,7 @@ simrs/
 ├── docs/            01_arsitektur.md, (api, ERD png, dst.)
 ├── backend-yii/     Yii2: business logic & semua write (lihat backend-yii/README.md)
 ├── services-node/   Node.js: API lab/integrasi + dashboard read-only
-├── frontend/        React.js
+├── frontend/        React.js: aplikasi petugas (lihat frontend/README.md)
 └── postman/         collection (Fase 4)
 ```
 
@@ -208,6 +208,6 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_readonly;
 |---|---|
 | Database + ERD + constraint skenario D | selesai |
 | Backend Yii2 (auth, RBAC, master data, alur pendaftaran → pembayaran, cetak invoice/struk) | selesai, 43 tes lolos, PHPStan level 5 bersih |
-| services-node (lab, dashboard, integrasi) | selesai, 18 tes lolos |
-| Frontend React | berikutnya |
-| Postman collection, README root, screenshot | berikutnya |
+| services-node (lab, dashboard, integrasi, CORS) | selesai, 19 tes lolos |
+| Frontend React (semua role, dashboard, master data) | selesai, uji end-to-end browser lolos, 18 screenshot di `docs/screenshots/` |
+| Postman collection | berikutnya |

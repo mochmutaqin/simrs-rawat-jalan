@@ -16,7 +16,7 @@ set "ROOT=%~dp0"
 set "PATH=%PG_BIN%;%PATH%"
 
 echo.
-echo === [1/7] Cek prasyarat ===
+echo === [1/8] Cek prasyarat ===
 if exist "%PG_BIN%\psql.exe" goto :pgok
 echo [GAGAL] psql.exe tidak ditemukan di "%PG_BIN%".
 echo         Pastikan PostgreSQL 17 sudah terinstall, atau ubah PG_BIN di bagian atas file ini.
@@ -39,7 +39,7 @@ goto :fail
 echo PHP        : OK, pdo_pgsql aktif
 
 echo.
-echo === [2/7] Login PostgreSQL ===
+echo === [2/8] Login PostgreSQL ===
 pg_isready -h %PGHOST% -p %PGPORT% >nul 2>&1
 if not errorlevel 1 goto :serverup
 sc query postgresql-x64-17 >nul 2>&1
@@ -67,7 +67,7 @@ goto :fail
 echo Login OK
 
 echo.
-echo === [3/7] Database %DB_NAME% ===
+echo === [3/8] Database %DB_NAME% ===
 set "DB_EXISTS="
 for /f "usebackq delims=" %%r in (`psql -w -tAc "SELECT 1 FROM pg_database WHERE datname = '%DB_NAME%'" postgres`) do set "DB_EXISTS=%%r"
 if "%DB_EXISTS%"=="1" goto :dbexists
@@ -80,7 +80,7 @@ echo Database %DB_NAME% sudah ada.
 :dbready
 
 echo.
-echo === [4/7] Backend Yii: dependency dan konfigurasi ===
+echo === [4/8] Backend Yii: dependency dan konfigurasi ===
 cd /d "%ROOT%backend-yii"
 if exist controllers\SiteController.php call cleanup-template.bat
 if exist vendor\autoload.php goto :vendorok
@@ -94,7 +94,7 @@ if errorlevel 1 goto :fail
 echo .env siap (password DB diisi otomatis).
 
 echo.
-echo === [5/7] Skema database ===
+echo === [5/8] Skema database ===
 php yii migrate --interactive=0
 if errorlevel 1 goto :fail
 psql -w -q -v ON_ERROR_STOP=1 -d %DB_NAME% -f "%ROOT%database\003_readonly_user.sql"
@@ -102,12 +102,12 @@ if errorlevel 1 goto :fail
 echo User read-only app_readonly untuk services-node siap.
 
 echo.
-echo === [6/7] Data demo ===
+echo === [6/8] Data demo ===
 php yii seed/demo
 if errorlevel 1 goto :fail
 
 echo.
-echo === [7/7] services-node ===
+echo === [7/8] services-node ===
 cd /d "%ROOT%services-node"
 where npm >nul 2>&1
 if errorlevel 1 goto :nonode
@@ -118,9 +118,19 @@ call npm install
 if errorlevel 1 goto :fail
 :nodeok
 echo services-node siap.
+
+echo.
+echo === [8/8] Frontend React ===
+cd /d "%ROOT%frontend"
+if exist node_modules goto :feok
+echo Menjalankan npm install...
+call npm install
+if errorlevel 1 goto :fail
+:feok
+echo Frontend siap.
 goto :done
 :nonode
-echo [LEWATI] npm tidak ditemukan, services-node belum disiapkan.
+echo [LEWATI] npm tidak ditemukan, services-node dan frontend belum disiapkan.
 
 :done
 echo.
@@ -130,6 +140,7 @@ echo  Akun demo   : admin, pendaftaran, dokter.umum, farmasi, lab, kasir
 echo  Password    : password123
 echo  Backend Yii : http://localhost:8080/api/health
 echo  Node        : http://localhost:3001/health
+echo  Aplikasi    : http://localhost:5173
 echo ==================================================================
 echo.
 choice /c YN /m "Jalankan semua service sekarang"

@@ -29,6 +29,14 @@ class InvoiceController extends BaseController
         ];
     }
 
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+        // dokumen cetak adalah HTML: jangan dipaksa negosiasi JSON (browser mengirim Accept: text/html)
+        $behaviors['contentNegotiator']['except'] = ['print', 'receipt'];
+        return $behaviors;
+    }
+
     protected function verbs(): array
     {
         return ['index' => ['GET'], 'view' => ['GET'], 'by-visit' => ['GET'], 'pay' => ['POST'], 'refund' => ['POST'],
