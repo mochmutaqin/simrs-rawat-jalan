@@ -22,7 +22,7 @@ simrs/
 ├── services-node/            API lab & dashboard (Node.js) + tes node:test
 ├── frontend/                 aplikasi petugas (React) + skrip uji end-to-end
 ├── database/                 001_schema.sql (skema + seed role), 002 bukti constraint, 003 user read-only
-├── docs/                     arsitektur, ERD, screenshot
+├── docs/                     arsitektur, ERD, test case, screenshot
 ├── postman/                  collection, environment, laporan pengujian Newman
 ├── docker-compose.yml        PostgreSQL siap pakai (opsional)
 ├── setup-windows.bat         setup sekali jalan di Windows
@@ -85,6 +85,8 @@ Urutan demo: daftar pasien (pendaftaran) → periksa & resep & lab (dokter) → 
 | Analisis statis Yii | `cd backend-yii && vendor/bin/phpstan analyse` | level 5, 0 error |
 | End-to-end browser (semua role) + screenshot | `cd frontend && npm run e2e` | alur lengkap tanpa error console/HTTP 5xx |
 | Postman collection (Yii + Node, 11 folder) | `npx newman run postman/SIMRS.postman_collection.json -e postman/SIMRS-lokal.postman_environment.json` | 102 request, 286/286 assertion lolos ([laporan](postman/reports/ringkasan-pengujian.html)) |
+
+Daftar 50 test case per fitur beserta test yang membuktikannya: [`docs/02_test_case.md`](docs/02_test_case.md).
 
 ## Tampilan
 
