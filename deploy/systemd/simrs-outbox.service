@@ -1,0 +1,22 @@
+# SIMRS Rawat Jalan - outbox worker: kirim event Yii ke services-node dengan retry
+# Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+# Dipasang oleh deploy/setup-server.sh ke /etc/systemd/system/simrs-outbox.service
+
+[Unit]
+Description=SIMRS outbox worker
+After=network.target postgresql.service simrs-node.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_DIR__/backend-yii
+ExecStart=__PHP_BIN__ yii outbox/run
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

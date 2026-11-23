@@ -1,0 +1,23 @@
+# SIMRS Rawat Jalan - services-node (worklist lab, dashboard, laporan)
+# Author: Mochamad Mutaqin Kurniawan <mochmutaqin@gmail.com>
+# Dipasang oleh deploy/setup-server.sh ke /etc/systemd/system/simrs-node.service
+
+[Unit]
+Description=SIMRS services-node
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_DIR__/services-node
+EnvironmentFile=__APP_DIR__/services-node/.env
+ExecStart=__NODE_BIN__ src/server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

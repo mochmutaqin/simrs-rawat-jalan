@@ -11,6 +11,7 @@ const env = process.env;
 
 module.exports = {
   port: Number(env.PORT || 3001),
+  host: env.HOST || undefined,           // kosong = semua interface (development)
   jwtSecret: env.JWT_SECRET || 'dev-secret-ganti-di-produksi',
   serviceToken: env.SERVICE_TOKEN || 'dev-service-token',
   corsOrigins: (env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:4173').split(',').map((s) => s.trim()).filter(Boolean),

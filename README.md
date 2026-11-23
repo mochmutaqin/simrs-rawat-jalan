@@ -22,11 +22,12 @@ Arsitektur, ERD, pembagian tanggung jawab Yii vs Node.js, dan penanganan skenari
 ```
 simrs/
 ├── backend-yii/              API utama (Yii2) + tes Codeception
-├── services-node/            API lab & dashboard (Node.js) + tes node:test
+├── services-node/            API lab, dashboard & laporan (Node.js) + tes node:test
 ├── frontend/                 aplikasi petugas (React) + skrip uji end-to-end
 ├── database/                 001_schema.sql (skema + seed role), 002 bukti constraint, 003 user read-only
-├── docs/                     arsitektur, ERD, test case, screenshot
+├── docs/                     arsitektur, ERD, test case, panduan deploy, screenshot
 ├── postman/                  collection, environment, laporan pengujian Newman
+├── deploy/                   instalasi server Ubuntu: Nginx, PHP-FPM, systemd, backup
 ├── docker-compose.yml        PostgreSQL siap pakai (opsional)
 ├── setup-windows.bat         setup sekali jalan di Windows
 ├── start-dev.bat             menyalakan semua service di Windows
@@ -61,6 +62,18 @@ node --env-file=.env src/server.js &          # :3001
 
 cd ../frontend && npm install && npm run dev  # http://localhost:5173
 ```
+
+## Deploy ke server
+
+`start-dev.bat` hanya untuk development di Windows. Untuk server Ubuntu 24.04, satu skrip memasang Nginx,
+PHP-FPM, PostgreSQL, Node.js, service systemd, backup harian, dan HTTPS:
+
+```bash
+sudo git clone https://github.com/mochmutaqin/simrs-rawat-jalan.git /var/www/simrs
+cd /var/www/simrs && sudo bash deploy/setup-server.sh simrs.contoh.com --demo --email admin@contoh.com
+```
+
+Penjelasan lengkap, perintah update/backup, dan checklist keamanan: [`docs/03_deployment.md`](docs/03_deployment.md).
 
 ## Akun demo
 

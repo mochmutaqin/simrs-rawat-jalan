@@ -180,11 +180,12 @@ Kelebihan bayar setelah koreksi (mis. tindakan dibatalkan setelah lunas) ditampi
 ```
 simrs/
 ├── database/        001_schema.sql, 002_constraint_tests.sql
-├── docs/            01_arsitektur.md, (api, ERD png, dst.)
+├── docs/            01_arsitektur.md, 02_test_case.md, 03_deployment.md, screenshots/
 ├── backend-yii/     Yii2: business logic & semua write (lihat backend-yii/README.md)
-├── services-node/   Node.js: API lab/integrasi + dashboard read-only
+├── services-node/   Node.js: API lab/integrasi + dashboard & laporan read-only
 ├── frontend/        React.js: aplikasi petugas (lihat frontend/README.md)
-└── postman/         collection (Fase 4)
+├── postman/         collection, environment, laporan Newman
+└── deploy/          instalasi server: Nginx, PHP-FPM, systemd, update, backup
 ```
 
 ## 9. Cara Pasang Database
@@ -213,3 +214,4 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_readonly;
 | services-node (lab, dashboard, laporan, integrasi, CORS) | selesai, 25 tes lolos |
 | Frontend React (semua role, dashboard, laporan, master data, responsif HP/tablet) | selesai, uji end-to-end browser lolos, 21 screenshot di `docs/screenshots/` |
 | Postman collection | selesai, 109 request / 309 assertion lolos (`postman/`) |
+| Deploy produksi (Nginx, PHP-FPM, systemd, HTTPS, backup) | siap, diuji di Ubuntu 24.04 (`deploy/`, `docs/03_deployment.md`) |

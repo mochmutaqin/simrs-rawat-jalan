@@ -32,6 +32,8 @@ class m261122_000001_init_schema extends Migration
         // BEGIN/COMMIT di file dibuang: migration ini sudah berjalan dalam transaksi.
         $sql = preg_replace('/^\s*(BEGIN|COMMIT)\s*;\s*$/mi', '', $sql);
         $this->db->pdo->exec($sql);
+        // cek "roles belum ada" di atas ikut tersimpan di schema cache (aktif di produksi): buang agar tidak basi
+        $this->db->getSchema()->refresh();
         return true;
     }
 
